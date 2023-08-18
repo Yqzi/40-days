@@ -26,7 +26,7 @@ class _DaysState extends State<Days> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 3)),
             height:
-                ((MediaQuery.of(context).size.width * 5 - 14 * 5) / 8) + 8 + 4,
+                ((MediaQuery.of(context).size.width * 5 - 14 * 5) / 8) + 8 + 3,
             child: Center(
               child: GridView(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
