@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {
   runApp(
-    const MaterialApp(home: Days()),
+    const MaterialApp(home: Home()),
   );
 }
 
-class Days extends StatefulWidget {
-  const Days({super.key});
+class Home extends StatelessWidget {
+  const Home({super.key});
 
-  @override
-  State<Days> createState() => _DaysState();
-}
+  void getTaskDetails(String Name, List? subnames) {}
 
-class _DaysState extends State<Days> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(10),
+          ),
+        ),
         title: const Text("Habit Builder"),
       ),
       body: Column(
@@ -54,9 +57,89 @@ class _DaysState extends State<Days> {
                 Title(
                   color: Colors.white,
                   child: const Text('Tasks'),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CustomAlertDialog();
+                        });
+                  },
+                  icon: const Icon(FontAwesomeIcons.circlePlus),
                 )
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomAlertDialog extends StatefulWidget {
+  final Function()? taskDetails;
+  const CustomAlertDialog({
+    super.key,
+    this.taskDetails,
+  });
+
+  @override
+  State<CustomAlertDialog> createState() => _CustomAlertDialogState();
+}
+
+class _CustomAlertDialogState extends State<CustomAlertDialog> {
+  TextEditingController taskNameController = TextEditingController();
+  bool ifSubList = false;
+  List<String> subNames = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(30),
+        ),
+      ),
+      title: const Text("Add Task"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: taskNameController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              labelText: "Task Name: ",
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                ifSubList = !ifSubList;
+              });
+            },
+            child: const Text("ADD SUBLIST +"),
+          ),
+          if (ifSubList == true)
+            TextField(
+              decoration: InputDecoration(
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                labelText: "add sub task: ",
+              ),
+              onSubmitted: (value) => setState(
+                () {
+                  subNames.add(value);
+                },
+              ),
+            ),
+          if (ifSubList == true)
+            for (int i = 0; i < subNames.length; i++) Text(subNames[i]),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("DONE"),
           ),
         ],
       ),
