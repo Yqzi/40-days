@@ -1,5 +1,10 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:forty_days/task.dart';
+
+import 'custom_alert_dialog.dart';
 
 void main() {
   runApp(
@@ -7,10 +12,23 @@ void main() {
   );
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
-  void getTaskDetails(String Name, List? subnames) {}
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  Map<String, List<String>?> tasks = {};
+  int count = 0;
+  bool isChecked = false;
+  void getTaskDetails(String name, List<String>? subNames) {
+    Task task = Task(name, subNames);
+    // setState(() {
+    //   tasks[name] = subNames;
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,103 +81,48 @@ class Home extends StatelessWidget {
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return CustomAlertDialog();
+                          return CustomAlertDialog(
+                            taskDetails: getTaskDetails,
+                          );
                         });
                   },
                   icon: const Icon(FontAwesomeIcons.circlePlus),
-                )
+                ),
+                for (var key in tasks.keys)
+                  tasks[key]!.isNotEmpty
+                      ? MaterialButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text(key),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      for (var value in tasks[key]!)
+                                        Text(value),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Text(key),
+                        )
+                      : CheckboxListTile(
+                          value: isChecked,
+                          onChanged: (value) {
+                            setState(() {
+                              isChecked = value!;
+                            });
+                          },
+                          title: Text(key),
+                        ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class CustomAlertDialog extends StatefulWidget {
-  final Function()? taskDetails;
-  const CustomAlertDialog({
-    super.key,
-    this.taskDetails,
-  });
-
-  @override
-  State<CustomAlertDialog> createState() => _CustomAlertDialogState();
-}
-
-class _CustomAlertDialogState extends State<CustomAlertDialog> {
-  TextEditingController taskNameController = TextEditingController();
-  TextEditingController subNamesController = TextEditingController();
-  FocusNode myFocusNode = FocusNode();
-  bool ifSubList = false;
-  List<String> subNames = [];
-
-  String title = 'Add Task';
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-      child: AlertDialog(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(30),
-          ),
-        ),
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (ifSubList == false || taskNameController.text == '')
-              TextField(
-                controller: taskNameController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  labelText: "Task Name: ",
-                ),
-                onSubmitted: (value) {
-                  setState(() {
-                    title = value;
-                  });
-                },
-              ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  ifSubList = !ifSubList;
-                });
-              },
-              child: const Text("ADD SUBLIST +"),
-            ),
-            if (ifSubList == true)
-              TextField(
-                controller: subNamesController,
-                focusNode: myFocusNode,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                  labelText: "add sub task: ",
-                ),
-                onSubmitted: (value) => setState(
-                  () {
-                    subNames.add(value);
-                    subNamesController.clear();
-                    myFocusNode.requestFocus();
-                    print(taskNameController.text);
-                  },
-                ),
-              ),
-            if (ifSubList == true)
-              for (int i = 0; i < subNames.length; i++) Text(subNames[i]),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("DONE"),
-            ),
-          ],
-        ),
       ),
     );
   }
