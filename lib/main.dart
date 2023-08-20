@@ -24,10 +24,9 @@ class _HomeState extends State<Home> {
   int count = 0;
   bool isChecked = false;
   void getTaskDetails(String name, List<String>? subNames) {
-    Task task = Task(name, subNames);
-    // setState(() {
-    //   tasks[name] = subNames;
-    // });
+    setState(() {
+      tasks[name] = subNames;
+    });
   }
 
   @override
