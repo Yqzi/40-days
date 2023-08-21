@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:forty_days/task.dart';
 
 import 'custom_alert_dialog.dart';
 
@@ -17,13 +18,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Map<String, List<String>?> tasks = {};
-  int count = 0;
+  List<Task> tasks = [];
   bool isChecked = false;
-  void getTaskDetails(String name, List<String>? subNames) {
-    setState(() {
-      tasks[name] = subNames;
-    });
+
+  void addTask(String name, List<String>? subList) {
+    tasks.add(Task(name: name, subList: subList ?? []));
+    setState(() {});
   }
 
   @override
@@ -78,42 +78,75 @@ class _HomeState extends State<Home> {
                         context: context,
                         builder: (BuildContext context) {
                           return CustomAlertDialog(
-                            taskDetails: getTaskDetails,
+                            taskDetails: addTask,
                           );
                         });
                   },
                   icon: const Icon(FontAwesomeIcons.circlePlus),
                 ),
-                for (var key in tasks.keys)
-                  tasks[key]!.isNotEmpty
-                      ? MaterialButton(
-                          onPressed: () {
+                for (var i = 0; i < tasks.length; i++)
+                  tasks[i].subList.isNotEmpty
+                      ? CheckboxListTile(
+                          value: tasks[i].isChecked,
+                          title: Text(tasks[i].name),
+                          onChanged: (value) {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text(key),
+                                  title: Text(tasks[i].name),
                                   content: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      for (var value in tasks[key]!)
-                                        Text(value),
+                                      for (var j = 0;
+                                          j < tasks[i].subList.length;
+                                          j++)
+                                        StatefulBuilder(
+                                          builder: (BuildContext context,
+                                              void Function(void Function())
+                                                  setState) {
+                                            return CheckboxListTile(
+                                              value: tasks[i].isSubChecked[j],
+                                              title: Text(tasks[i].subList[j]),
+                                              onChanged: (value) {
+                                                setState(
+                                                  () {
+                                                    tasks[i].isSubChecked[j] =
+                                                        value!;
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      TextButton(
+                                        onPressed: () {
+                                          if (tasks[i].isSubChecked.every(
+                                              (element) => element == true)) {
+                                            tasks[i].isChecked = true;
+                                          } else {
+                                            tasks[i].isChecked = false;
+                                          }
+                                          setState(() {});
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("DONE"),
+                                      )
                                     ],
                                   ),
                                 );
                               },
                             );
                           },
-                          child: Text(key),
                         )
                       : CheckboxListTile(
-                          value: isChecked,
+                          value: tasks[i].isChecked,
                           onChanged: (value) {
                             setState(() {
-                              isChecked = value!;
+                              tasks[i].isChecked = value!;
                             });
                           },
-                          title: Text(key),
+                          title: Text(tasks[i].name),
                         ),
               ],
             ),

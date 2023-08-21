@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomAlertDialog extends StatefulWidget {
-  final void Function(String, List<String>)? taskDetails;
+  final void Function(String, List<String>?)? taskDetails;
   const CustomAlertDialog({
     super.key,
     this.taskDetails,
