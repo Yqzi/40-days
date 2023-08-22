@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:forty_days/box.dart';
 import 'package:forty_days/task.dart';
 
 import 'custom_alert_dialog.dart';
@@ -19,11 +20,30 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Task> tasks = [];
-  bool isChecked = false;
+  List<Box> boxes = [];
+  DateTime yesterday = DateTime.now();
+  DateTime today = DateTime.now();
+  int day = 0;
 
   void addTask(String name, List<String>? subList) {
     tasks.add(Task(name: name, subList: subList ?? []));
     setState(() {});
+  }
+
+  void addDay([int? completed]) {
+    boxes.clear();
+    for (int i = 0; i < 40; i++) {
+      boxes.add(
+        Box(),
+      );
+    }
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    addDay();
   }
 
   @override
@@ -53,14 +73,7 @@ class _HomeState extends State<Home> {
                   childAspectRatio: 1,
                 ),
                 children: [
-                  for (int i = 0; i < 40; i++)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        border: Border.all(color: Colors.black, width: 3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    )
+                  for (var box in boxes) box.createBox(),
                 ],
               ),
             ),
@@ -142,9 +155,9 @@ class _HomeState extends State<Home> {
                       : CheckboxListTile(
                           value: tasks[i].isChecked,
                           onChanged: (value) {
-                            setState(() {
-                              tasks[i].isChecked = value!;
-                            });
+                            setState(
+                              () {},
+                            );
                           },
                           title: Text(tasks[i].name),
                         ),
