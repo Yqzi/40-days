@@ -21,23 +21,47 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Task> tasks = [];
   List<Box> boxes = [];
-  DateTime yesterday = DateTime.now();
-  DateTime today = DateTime.now();
-  int day = 0;
 
   void addTask(String name, List<String>? subList) {
     tasks.add(Task(name: name, subList: subList ?? []));
+    verifyComplete();
     setState(() {});
   }
 
   void addDay([int? completed]) {
-    boxes.clear();
     for (int i = 0; i < 40; i++) {
       boxes.add(
         Box(),
       );
     }
     setState(() {});
+  }
+
+  void verifyComplete() {
+    boxes[0] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
+    boxes[1] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
+    boxes[2] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
+    int index = boxes.indexWhere((e) => e.completionDate == null);
+    final isComplete = tasks.every((element) => element.isChecked == true);
+
+    if (isComplete) {
+      if (index != 0) {
+        if (boxes[index - 1].completionDate != null &&
+            !boxes[index - 1].isToday) {
+          boxes[index] = Box(completionDate: DateTime.now());
+        }
+        return;
+      }
+
+      // if not complete
+      else {
+        boxes[index] = Box(completionDate: DateTime.now());
+      }
+    } else if (index != 0 && boxes[index - 1].isToday) {
+      boxes[index - 1] = Box();
+    } else {
+      boxes[index] = Box();
+    }
   }
 
   @override
@@ -126,6 +150,7 @@ class _HomeState extends State<Home> {
                                                   () {
                                                     tasks[i].isSubChecked[j] =
                                                         value!;
+                                                    verifyComplete();
                                                   },
                                                 );
                                               },
@@ -137,6 +162,7 @@ class _HomeState extends State<Home> {
                                           if (tasks[i].isSubChecked.every(
                                               (element) => element == true)) {
                                             tasks[i].isChecked = true;
+                                            verifyComplete();
                                           } else {
                                             tasks[i].isChecked = false;
                                           }
@@ -155,9 +181,9 @@ class _HomeState extends State<Home> {
                       : CheckboxListTile(
                           value: tasks[i].isChecked,
                           onChanged: (value) {
-                            setState(
-                              () {},
-                            );
+                            tasks[i].isChecked = value!;
+                            verifyComplete();
+                            setState(() {});
                           },
                           title: Text(tasks[i].name),
                         ),
