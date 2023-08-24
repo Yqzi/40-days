@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:forty_days/box.dart';
-import 'package:forty_days/task.dart';
+import 'package:forty_days/models/box.dart';
+import 'package:forty_days/components/custom_checkBox.dart';
+import 'package:forty_days/models/task.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'custom_alert_dialog.dart';
+import 'components/custom_alert_dialog.dart';
 
 void main() {
   runApp(
@@ -21,6 +23,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Task> tasks = [];
   List<Box> boxes = [];
+  DateTime yesterday = DateTime.now();
 
   void addTask(String name, List<String>? subList) {
     tasks.add(Task(name: name, subList: subList ?? []));
@@ -28,11 +31,14 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  void addDay([int? completed]) {
-    for (int i = 0; i < 40; i++) {
-      boxes.add(
-        Box(),
-      );
+  void addDay([int? completed]) async {
+    if (boxes.isEmpty) {
+      for (int i = 0; i < 40; i++) {
+        String? x = await loadDays(i.toString());
+        boxes.add(
+          x == null ? Box() : Box(completionDate: DateTime.parse(x)),
+        );
+      }
     }
     setState(() {});
   }
@@ -50,24 +56,63 @@ class _HomeState extends State<Home> {
             !boxes[index - 1].isToday) {
           boxes[index] = Box(completionDate: DateTime.now());
         }
-        return;
-      }
-
-      // if not complete
-      else {
+      } else {
         boxes[index] = Box(completionDate: DateTime.now());
       }
-    } else if (index != 0 && boxes[index - 1].isToday) {
+      saveDays(index.toString(), boxes[index].completionDate.toString());
+      setState(() {});
+      return;
+    }
+    // if not complete
+    // reset latest checkbox
+    else if (index != 0 && boxes[index - 1].isToday) {
       boxes[index - 1] = Box();
+      removeDays((index - 1).toString());
     } else {
       boxes[index] = Box();
+      removeDays(index.toString());
     }
+    setState(() {});
+    return;
+  }
+
+  void resetTaskCompletion() {
+    // reset task check boxes
+    if (yesterday.day != DateTime.now().day) {
+      for (var task in tasks) {
+        if (task.isSubChecked.isEmpty) {
+          task.isChecked = false;
+        } else {
+          for (var element in task.isSubChecked) {
+            element = false;
+          }
+          task.isChecked = false;
+        }
+      }
+      yesterday = DateTime.now();
+    }
+  }
+
+  void saveDays(String index, String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(index, value);
+  }
+
+  Future<String?> loadDays(String index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(index);
+  }
+
+  void removeDays(String index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(index);
   }
 
   @override
   void initState() {
     super.initState();
     addDay();
+    resetTaskCompletion();
   }
 
   @override
@@ -122,71 +167,11 @@ class _HomeState extends State<Home> {
                   icon: const Icon(FontAwesomeIcons.circlePlus),
                 ),
                 for (var i = 0; i < tasks.length; i++)
-                  tasks[i].subList.isNotEmpty
-                      ? CheckboxListTile(
-                          value: tasks[i].isChecked,
-                          title: Text(tasks[i].name),
-                          onChanged: (value) {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(tasks[i].name),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      for (var j = 0;
-                                          j < tasks[i].subList.length;
-                                          j++)
-                                        StatefulBuilder(
-                                          builder: (BuildContext context,
-                                              void Function(void Function())
-                                                  setState) {
-                                            return CheckboxListTile(
-                                              value: tasks[i].isSubChecked[j],
-                                              title: Text(tasks[i].subList[j]),
-                                              onChanged: (value) {
-                                                setState(
-                                                  () {
-                                                    tasks[i].isSubChecked[j] =
-                                                        value!;
-                                                    verifyComplete();
-                                                  },
-                                                );
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      TextButton(
-                                        onPressed: () {
-                                          if (tasks[i].isSubChecked.every(
-                                              (element) => element == true)) {
-                                            tasks[i].isChecked = true;
-                                            verifyComplete();
-                                          } else {
-                                            tasks[i].isChecked = false;
-                                          }
-                                          setState(() {});
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text("DONE"),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        )
-                      : CheckboxListTile(
-                          value: tasks[i].isChecked,
-                          onChanged: (value) {
-                            tasks[i].isChecked = value!;
-                            verifyComplete();
-                            setState(() {});
-                          },
-                          title: Text(tasks[i].name),
-                        ),
+                  CustomCheckBox(
+                    tasks: tasks,
+                    i: i,
+                    verifyComplete: verifyComplete,
+                  )
               ],
             ),
           ),
