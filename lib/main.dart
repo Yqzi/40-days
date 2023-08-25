@@ -108,6 +108,44 @@ class _HomeState extends State<Home> {
     prefs.remove(index);
   }
 
+  void saveTask({
+    required int i,
+    required String name,
+    required List<String> value,
+    required bool boolian,
+  }) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString((i + 40).toString(), name);
+    prefs.setStringList(name, value);
+    prefs.setBool(value.toString(), boolian);
+  }
+
+  Future<String?> loadTaskName(int i) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString((i + 40).toString());
+  }
+
+  /// Use loadtaskName Function to get access to name parameter.
+  Future<List<String>> loadTaskSublist(String name) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(name)!;
+  }
+
+  /// Use loadTaskSublist Function to get access to value parameter.
+  Future<bool> loadtaskChecked(List<String> value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(value.toString())!;
+  }
+
+  void rebuildtasks() async {
+    for (var i = 0; (await loadTaskName(i)) != null; i++) {
+      String x = (await loadTaskName(i))!;
+      List<String>? y = await loadTaskSublist(x);
+      bool? z = await loadtaskChecked(y);
+      tasks.add(Task(name: x, subList: y)..isChecked = z);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
