@@ -55,31 +55,40 @@ class CustomDatabase {
     );
   }
 
-  Future<int> createMain({required String name, required bool checked}) async {
+  Future<int> createTask({required String name, required bool checked}) async {
     int check = checked == true ? 1 : 0;
     final database = await CustomDatabase().database;
     return await database.rawInsert(
-      '''ISERT INTO $tableName1 (name, isChecked) VALUES (?,?)''',
+      "ISERT INTO $tableName1 (name, isChecked) VALUES (?,?)",
       [name, check],
     );
   }
 
-  Future<int> createSub(
-      {required String subName, required bool subChecked}) async {
+  Future<int> createSubTask({
+    required String parentName,
+    required String subName,
+    required bool subChecked,
+  }) async {
     int check = subChecked == true ? 1 : 0;
     final database = await CustomDatabase().database;
     return await database.rawInsert(
-      '''ISERT INTO $tableName2 (subName, isSubChecked) VALUES (?,?)''',
-      [subName, check],
+      "INSERT INTO $tableName2 (parentName, subName, isSubChecked) VALUES (?, ? ,?)",
+      [parentName, subName, check],
     );
   }
 
   Future<List<Task>> fetchAll() async {
-    List task = [];
+    List<Task> tasks = [];
+      List<Map> query;
+    tasks.forEach((task) {
+
+      List<Map> q = query.where((q) => q[parentName] == task.name).toList();
+      q.forEach((element) {task.subList.add(element['subName'])});
+    })
     final database = await CustomDatabase().database;
-    final tasks = await database.rawQuery(
+    final tasksQuery = await database.rawQuery(
         '''SELECT * FROM $tableName1 ,$tableName2  WHERE $tableName1.name == $tableName2.parentName''');
     for (var e in tasks) {}
-    return tasks.map((e) => Task.fromSqfliteDatabase(todo).toList());
+       List<Task> tasks = tasksQuery.map((e) => Task.fromJson(e)).toList();
   }
 }
