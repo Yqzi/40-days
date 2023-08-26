@@ -8,6 +8,9 @@ class Task {
     }
   }
 
+  factory Task.fromSqfliteDatabase(Map<String, dynamic> map) =>
+      Task(name: map['name'], subList: map[[]]);
+
   bool isChecked = false;
 
   List<bool> isSubChecked = [];

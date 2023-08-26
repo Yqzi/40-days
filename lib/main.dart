@@ -3,11 +3,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/models/box.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/models/task.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:forty_days/repos/shared_prefs.dart';
 
 import 'components/custom_alert_dialog.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(
     const MaterialApp(home: Home()),
   );
@@ -21,6 +23,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final Preferences _prefs = Preferences();
   List<Task> tasks = [];
   List<Box> boxes = [];
   DateTime yesterday = DateTime.now();
@@ -34,7 +37,7 @@ class _HomeState extends State<Home> {
   void addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
-        String? x = await loadDays(i.toString());
+        String? x = await _prefs.loadDays(i.toString());
         boxes.add(
           x == null ? Box() : Box(completionDate: DateTime.parse(x)),
         );
@@ -59,7 +62,7 @@ class _HomeState extends State<Home> {
       } else {
         boxes[index] = Box(completionDate: DateTime.now());
       }
-      saveDays(index.toString(), boxes[index].completionDate.toString());
+      _prefs.saveDays(index.toString(), boxes[index].completionDate.toString());
       setState(() {});
       return;
     }
@@ -67,10 +70,10 @@ class _HomeState extends State<Home> {
     // reset latest checkbox
     else if (index != 0 && boxes[index - 1].isToday) {
       boxes[index - 1] = Box();
-      removeDays((index - 1).toString());
+      _prefs.removeDays((index - 1).toString());
     } else {
       boxes[index] = Box();
-      removeDays(index.toString());
+      _prefs.removeDays(index.toString());
     }
     setState(() {});
     return;
@@ -90,59 +93,6 @@ class _HomeState extends State<Home> {
         }
       }
       yesterday = DateTime.now();
-    }
-  }
-
-  void saveDays(String index, String value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(index, value);
-  }
-
-  Future<String?> loadDays(String index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(index);
-  }
-
-  void removeDays(String index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove(index);
-  }
-
-  void saveTask({
-    required int i,
-    required String name,
-    required List<String> value,
-    required bool boolian,
-  }) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString((i + 40).toString(), name);
-    prefs.setStringList(name, value);
-    prefs.setBool(value.toString(), boolian);
-  }
-
-  Future<String?> loadTaskName(int i) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString((i + 40).toString());
-  }
-
-  /// Use loadtaskName Function to get access to name parameter.
-  Future<List<String>> loadTaskSublist(String name) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(name)!;
-  }
-
-  /// Use loadTaskSublist Function to get access to value parameter.
-  Future<bool> loadtaskChecked(List<String> value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(value.toString())!;
-  }
-
-  void rebuildtasks() async {
-    for (var i = 0; (await loadTaskName(i)) != null; i++) {
-      String x = (await loadTaskName(i))!;
-      List<String>? y = await loadTaskSublist(x);
-      bool? z = await loadtaskChecked(y);
-      tasks.add(Task(name: x, subList: y)..isChecked = z);
     }
   }
 
