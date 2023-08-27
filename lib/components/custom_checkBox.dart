@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:forty_days/components/task_details_dialog.dart';
 import 'package:forty_days/models/task.dart';
 
 class CustomCheckBox extends StatefulWidget {
   final List<Task> tasks;
   final int i;
   final void Function() verifyComplete;
+  bool edit;
 
-  const CustomCheckBox({
+  CustomCheckBox({
     super.key,
+    required this.edit,
     required this.tasks,
     required this.i,
     required this.verifyComplete,
@@ -28,51 +31,66 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             ? showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text(widget.tasks[widget.i].name),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var j = 0;
-                            j < widget.tasks[widget.i].subList.length;
-                            j++)
-                          StatefulBuilder(
-                            builder: (BuildContext context,
-                                void Function(void Function()) setState) {
-                              return CheckboxListTile(
-                                value: widget.tasks[widget.i].isSubChecked[j],
-                                title: Text(widget.tasks[widget.i].subList[j]),
-                                onChanged: (value) {
-                                  setState(
-                                    () {
-                                      widget.tasks[widget.i].isSubChecked[j] =
-                                          value!;
-                                      widget.verifyComplete();
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        TextButton(
-                          onPressed: () {
-                            if (widget.tasks[widget.i].isSubChecked
-                                .every((element) => element == true)) {
-                              widget.tasks[widget.i].isChecked = true;
-                              widget.verifyComplete();
-                            } else {
-                              widget.tasks[widget.i].isChecked = false;
-                            }
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text("DONE"),
+                  return widget.edit == true
+                      ? TaskDetailsDialog(
+                          task: widget.tasks[widget.i],
                         )
-                      ],
-                    ),
-                  );
+                      : AlertDialog(
+                          title: Text(widget.tasks[widget.i].name),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              for (var j = 0;
+                                  j < widget.tasks[widget.i].subList.length;
+                                  j++)
+                                StatefulBuilder(
+                                  builder: (BuildContext context,
+                                      void Function(void Function()) setState) {
+                                    return CheckboxListTile(
+                                      value: widget
+                                          .tasks[widget.i].isSubChecked[j],
+                                      title: Text(
+                                          widget.tasks[widget.i].subList[j]),
+                                      onChanged: (value) {
+                                        setState(
+                                          () {
+                                            widget.tasks[widget.i]
+                                                .isSubChecked[j] = value!;
+                                            widget.verifyComplete();
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              TextButton(
+                                onPressed: () {
+                                  if (widget.tasks[widget.i].isSubChecked
+                                      .every((element) => element == true)) {
+                                    widget.tasks[widget.i].isChecked = true;
+                                  } else {
+                                    widget.tasks[widget.i].isChecked = false;
+                                  }
+                                  widget.verifyComplete();
+                                  setState(() {});
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("DONE"),
+                              )
+                            ],
+                          ),
+                        );
                 },
               )
-            : widget.tasks[widget.i].isChecked = value!;
+            : widget.edit == true
+                ? showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return TaskDetailsDialog(
+                        task: widget.tasks[widget.i],
+                      );
+                    })
+                : widget.tasks[widget.i].isChecked = value!;
         widget.verifyComplete();
       },
     );

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
-class CustomAlertDialog extends StatefulWidget {
+import '../models/task.dart';
+
+class TaskDetailsDialog extends StatefulWidget {
   final void Function(String, List<String>?)? taskDetails;
-  const CustomAlertDialog({
-    super.key,
-    this.taskDetails,
-  });
+  final Task? task;
+
+  const TaskDetailsDialog({super.key, this.taskDetails, this.task});
 
   @override
-  State<CustomAlertDialog> createState() => _CustomAlertDialogState();
+  State<TaskDetailsDialog> createState() => _TaskDetailsDialogState();
 }
 
-class _CustomAlertDialogState extends State<CustomAlertDialog> {
+class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
   TextEditingController taskNameController = TextEditingController();
   TextEditingController subNamesController = TextEditingController();
   FocusNode myFocusNode = FocusNode();
@@ -19,6 +20,17 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
   List<String> subNames = [];
 
   String title = 'Add Task';
+
+  @override
+  void initState() {
+    if (widget.task != null) {
+      taskNameController.text = widget.task!.name;
+      widget.task!.subList.forEach((e) {
+        subNames.add(e);
+      });
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +42,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
             Radius.circular(30),
           ),
         ),
-        title: Text(title),
+        title: Text(widget.task?.name ?? title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

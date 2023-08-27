@@ -1,6 +1,10 @@
 class Task {
   final String name;
-  final List<String> subList;
+  List<String> subList;
+
+  set addToSublist(String s) {
+    subList.add(s);
+  }
 
   Task({required this.name, this.subList = const []}) {
     for (var i = 0; i < subList.length; i++) {
@@ -8,7 +12,7 @@ class Task {
     }
   }
 
-  factory Task.fromSqfliteDatabase(Map<String, dynamic> map) =>
+  factory Task.fromJson(Map<String, dynamic> map) =>
       Task(name: map['name'], subList: map[[]]);
 
   bool isChecked = false;

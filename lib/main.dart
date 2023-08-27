@@ -5,7 +5,7 @@ import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/models/task.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
 
-import 'components/custom_alert_dialog.dart';
+import 'components/task_details_dialog.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -142,24 +142,46 @@ class _HomeState extends State<Home> {
                   color: Colors.white,
                   child: const Text('Tasks'),
                 ),
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CustomAlertDialog(
-                            taskDetails: addTask,
-                          );
-                        });
-                  },
-                  icon: const Icon(FontAwesomeIcons.circlePlus),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return TaskDetailsDialog(
+                                taskDetails: addTask,
+                              );
+                            });
+                      },
+                      icon: const Icon(FontAwesomeIcons.circlePlus),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(FontAwesomeIcons.penToSquare),
+                    )
+                  ],
                 ),
-                for (var i = 0; i < tasks.length; i++)
-                  CustomCheckBox(
-                    tasks: tasks,
-                    i: i,
-                    verifyComplete: verifyComplete,
-                  )
+                ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: tasks.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      child: Column(
+                        children: <Widget>[
+                          CustomCheckBox(
+                            edit: false,
+                            tasks: tasks,
+                            i: index,
+                            verifyComplete: verifyComplete,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                )
               ],
             ),
           ),

@@ -78,17 +78,20 @@ class CustomDatabase {
   }
 
   Future<List<Task>> fetchAll() async {
-    List<Task> tasks = [];
-      List<Map> query;
-    tasks.forEach((task) {
-
-      List<Map> q = query.where((q) => q[parentName] == task.name).toList();
-      q.forEach((element) {task.subList.add(element['subName'])});
-    })
     final database = await CustomDatabase().database;
-    final tasksQuery = await database.rawQuery(
-        '''SELECT * FROM $tableName1 ,$tableName2  WHERE $tableName1.name == $tableName2.parentName''');
-    for (var e in tasks) {}
-       List<Task> tasks = tasksQuery.map((e) => Task.fromJson(e)).toList();
+    final tasksQuery = await database.rawQuery('''SELECT * FROM $tableName1''');
+    final subQuery = await database.rawQuery('''SELECT * FROM $tableName2''');
+
+    List<Task> tasks = tasksQuery.map((e) => Task.fromJson(e)).toList();
+    List<Map> sub = subQuery.map((e) => e).toList();
+
+    tasks.forEach((task) {
+      List<Map> q = sub.where((q) => q['parentName'] == task.name).toList();
+
+      q.forEach((element) {
+        task.addToSublist = element['subName'];
+      });
+    });
+    return tasks;
   }
 }
