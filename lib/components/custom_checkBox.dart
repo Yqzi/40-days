@@ -6,15 +6,16 @@ class CustomCheckBox extends StatefulWidget {
   final List<Task> tasks;
   final int i;
   final void Function() verifyComplete;
+  final void Function(String, List<String>?)? taskDetails;
   bool edit;
 
-  CustomCheckBox({
-    super.key,
-    required this.edit,
-    required this.tasks,
-    required this.i,
-    required this.verifyComplete,
-  });
+  CustomCheckBox(
+      {super.key,
+      required this.edit,
+      required this.tasks,
+      required this.i,
+      required this.verifyComplete,
+      required this.taskDetails});
 
   @override
   State<CustomCheckBox> createState() => _CustomCheckBoxState();
@@ -34,6 +35,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                   return widget.edit == true
                       ? TaskDetailsDialog(
                           task: widget.tasks[widget.i],
+                          taskDetails: widget.taskDetails,
                         )
                       : AlertDialog(
                           title: Text(widget.tasks[widget.i].name),
@@ -88,6 +90,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                     builder: (BuildContext context) {
                       return TaskDetailsDialog(
                         task: widget.tasks[widget.i],
+                        taskDetails: widget.taskDetails,
                       );
                     })
                 : widget.tasks[widget.i].isChecked = value!;

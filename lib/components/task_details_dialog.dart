@@ -28,6 +28,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
       widget.task!.subList.forEach((e) {
         subNames.add(e);
       });
+      setState(() {});
     }
     super.initState();
   }
@@ -91,7 +92,18 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
               for (int i = 0; i < subNames.length; i++) Text(subNames[i]),
             TextButton(
               onPressed: () {
-                widget.taskDetails!(title, subNames);
+                List<bool> len = [];
+                subNames.forEach((element) {
+                  len.add(false);
+                });
+                widget.task != null
+                    ? (
+                        widget.task!.name = title,
+                        widget.task!.subList = subNames,
+                        widget.task!.isSubChecked = len,
+                      )
+                    : widget.taskDetails!(title, subNames);
+                setState(() {});
                 Navigator.of(context).pop();
               },
               child: const Text("DONE"),

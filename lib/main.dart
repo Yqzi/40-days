@@ -27,6 +27,7 @@ class _HomeState extends State<Home> {
   List<Task> tasks = [];
   List<Box> boxes = [];
   DateTime yesterday = DateTime.now();
+  bool edit = false;
 
   void addTask(String name, List<String>? subList) {
     tasks.add(Task(name: name, subList: subList ?? []));
@@ -37,9 +38,9 @@ class _HomeState extends State<Home> {
   void addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
-        String? x = await _prefs.loadDays(i.toString());
+        DateTime? x = await _prefs.loadDays(i.toString());
         boxes.add(
-          x == null ? Box() : Box(completionDate: DateTime.parse(x)),
+          x == null ? Box() : Box(completionDate: x),
         );
       }
     }
@@ -62,7 +63,7 @@ class _HomeState extends State<Home> {
       } else {
         boxes[index] = Box(completionDate: DateTime.now());
       }
-      _prefs.saveDays(index.toString(), boxes[index].completionDate.toString());
+      _prefs.saveDays(index.toString(), boxes[index].completionDate!);
       setState(() {});
       return;
     }
@@ -158,7 +159,10 @@ class _HomeState extends State<Home> {
                       icon: const Icon(FontAwesomeIcons.circlePlus),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        edit = !edit;
+                        setState(() {});
+                      },
                       icon: const Icon(FontAwesomeIcons.penToSquare),
                     )
                   ],
@@ -172,7 +176,8 @@ class _HomeState extends State<Home> {
                       child: Column(
                         children: <Widget>[
                           CustomCheckBox(
-                            edit: false,
+                            taskDetails: addTask,
+                            edit: edit,
                             tasks: tasks,
                             i: index,
                             verifyComplete: verifyComplete,

@@ -4,14 +4,16 @@ class Preferences {
   final Future<SharedPreferences> _preferences =
       SharedPreferences.getInstance();
 
-  void saveDays(String index, String value) async {
+  void saveDays(String index, DateTime value) async {
     var prefs = await _preferences;
-    prefs.setString(index, value);
+    prefs.setString(index, value.toString());
   }
 
-  Future<String?> loadDays(String index) async {
+  Future<DateTime?> loadDays(String index) async {
     var prefs = await _preferences;
-    return prefs.getString(index);
+    var s = prefs.getString(index);
+    if (s == null) return null;
+    return DateTime.parse(s);
   }
 
   void removeDays(String index) async {

@@ -1,5 +1,5 @@
 class Task {
-  final String name;
+  String name;
   List<String> subList;
 
   set addToSublist(String s) {
