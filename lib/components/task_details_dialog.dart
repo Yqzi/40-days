@@ -24,7 +24,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
   @override
   void initState() {
     if (widget.task != null) {
-      taskNameController.text = widget.task!.name;
+      title = widget.task!.name;
+      taskNameController.text = title;
       widget.task!.subList.forEach((e) {
         subNames.add(e);
       });
@@ -43,7 +44,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
             Radius.circular(30),
           ),
         ),
-        title: Text(widget.task?.name ?? title),
+        title: Text(title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -59,6 +60,10 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                 onSubmitted: (value) {
                   setState(() {
                     title = value;
+                    if (widget.task != null) {
+                      widget.task!.name = value;
+                      widget.task!.isSubChecked.add(false);
+                    }
                   });
                 },
               ),
@@ -84,7 +89,10 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     subNames.add(value);
                     subNamesController.clear();
                     myFocusNode.requestFocus();
-                    print(taskNameController.text);
+                    if (widget.task != null) {
+                      widget.task!.isChecked = false;
+                      widget.task!.isSubChecked.add(false);
+                    }
                   },
                 ),
               ),
@@ -92,15 +100,15 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
               for (int i = 0; i < subNames.length; i++) Text(subNames[i]),
             TextButton(
               onPressed: () {
-                List<bool> len = [];
-                subNames.forEach((element) {
-                  len.add(false);
-                });
+                // List<bool> len = [];
+                // subNames.forEach((element) {
+                //   len.add(false);
+                // });
                 widget.task != null
                     ? (
                         widget.task!.name = title,
                         widget.task!.subList = subNames,
-                        widget.task!.isSubChecked = len,
+                        // widget.task!.isSubChecked = len,
                       )
                     : widget.taskDetails!(title, subNames);
                 setState(() {});

@@ -85,14 +85,16 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                 },
               )
             : widget.edit == true
-                ? showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return TaskDetailsDialog(
-                        task: widget.tasks[widget.i],
-                        taskDetails: widget.taskDetails,
-                      );
-                    })
+                ? (
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return TaskDetailsDialog(
+                            task: widget.tasks[widget.i],
+                            taskDetails: widget.taskDetails,
+                          );
+                        }),
+                  )
                 : widget.tasks[widget.i].isChecked = value!;
         widget.verifyComplete();
       },
