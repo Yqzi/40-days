@@ -1,21 +1,15 @@
 class Task {
   String name;
-  List<String> subList;
+  Map<String, bool> subList;
 
   set addToSublist(String s) {
-    subList.add(s);
+    subList[s] = false;
   }
 
-  Task({required this.name, this.subList = const []}) {
-    for (var i = 0; i < subList.length; i++) {
-      isSubChecked.add(false);
-    }
-  }
+  Task({required this.name, this.subList = const {}});
 
   factory Task.fromJson(Map<String, dynamic> map) =>
       Task(name: map['name'], subList: map[[]]);
 
   bool isChecked = false;
-
-  List<bool> isSubChecked = [];
 }

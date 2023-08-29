@@ -5,8 +5,8 @@ import 'package:forty_days/models/task.dart';
 class CustomCheckBox extends StatefulWidget {
   final List<Task> tasks;
   final int i;
-  final void Function() verifyComplete;
-  final void Function(String, List<String>?)? taskDetails;
+  final void Function() verifyDayComplete;
+  final void Function(String, Map<String, bool>?)? taskDetails;
   bool edit;
 
   CustomCheckBox(
@@ -14,7 +14,7 @@ class CustomCheckBox extends StatefulWidget {
       required this.edit,
       required this.tasks,
       required this.i,
-      required this.verifyComplete,
+      required this.verifyDayComplete,
       required this.taskDetails});
 
   @override
@@ -22,6 +22,7 @@ class CustomCheckBox extends StatefulWidget {
 }
 
 class _CustomCheckBoxState extends State<CustomCheckBox> {
+  bool val = false;
   @override
   Widget build(BuildContext context) {
     return CheckboxListTile(
@@ -50,15 +51,19 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                                       void Function(void Function()) setState) {
                                     return CheckboxListTile(
                                       value: widget
-                                          .tasks[widget.i].isSubChecked[j],
-                                      title: Text(
-                                          widget.tasks[widget.i].subList[j]),
+                                          .tasks[widget.i].subList.values
+                                          .elementAt(j),
+                                      title: Text(widget
+                                          .tasks[widget.i].subList.keys
+                                          .elementAt(j)),
                                       onChanged: (value) {
                                         setState(
                                           () {
-                                            widget.tasks[widget.i]
-                                                .isSubChecked[j] = value!;
-                                            widget.verifyComplete();
+                                            widget.tasks[widget.i].subList[
+                                                widget.tasks[widget.i].subList
+                                                    .keys
+                                                    .elementAt(j)] = value!;
+                                            widget.verifyDayComplete();
                                           },
                                         );
                                       },
@@ -67,13 +72,13 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                                 ),
                               TextButton(
                                 onPressed: () {
-                                  if (widget.tasks[widget.i].isSubChecked
-                                      .every((element) => element == true)) {
+                                  if (!widget.tasks[widget.i].subList
+                                      .containsKey(false)) {
                                     widget.tasks[widget.i].isChecked = true;
                                   } else {
                                     widget.tasks[widget.i].isChecked = false;
                                   }
-                                  widget.verifyComplete();
+                                  widget.verifyDayComplete();
                                   setState(() {});
                                   Navigator.of(context).pop();
                                 },
@@ -95,8 +100,11 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                           );
                         }),
                   )
-                : widget.tasks[widget.i].isChecked = value!;
-        widget.verifyComplete();
+                : (widget.tasks[widget.i].isChecked = value!,);
+        setState(() {});
+        print('value = $value');
+        print('tasks = ${widget.tasks[widget.i].isChecked}');
+        widget.verifyDayComplete();
       },
     );
   }

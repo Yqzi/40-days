@@ -29,9 +29,9 @@ class _HomeState extends State<Home> {
   DateTime yesterday = DateTime.now();
   bool edit = false;
 
-  void addTask(String name, List<String>? subList) {
-    tasks.add(Task(name: name, subList: subList ?? []));
-    verifyComplete();
+  void addTask(String name, Map<String, bool>? subList) {
+    tasks.add(Task(name: name, subList: subList ?? {}));
+    verifyDayComplete();
     setState(() {});
   }
 
@@ -47,12 +47,13 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  void verifyComplete() {
+  void verifyDayComplete() {
     boxes[0] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
     boxes[1] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
     boxes[2] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
     int index = boxes.indexWhere((e) => e.completionDate == null);
     final isComplete = tasks.every((element) => element.isChecked == true);
+    tasks.forEach((element) {});
 
     if (isComplete) {
       if (index != 0) {
@@ -84,11 +85,11 @@ class _HomeState extends State<Home> {
     // reset task check boxes
     if (yesterday.day != DateTime.now().day) {
       for (var task in tasks) {
-        if (task.isSubChecked.isEmpty) {
+        if (task.subList.isEmpty) {
           task.isChecked = false;
         } else {
-          for (var element in task.isSubChecked) {
-            element = false;
+          for (var key in task.subList.keys) {
+            task.subList[key] = false;
           }
           task.isChecked = false;
         }
@@ -180,7 +181,7 @@ class _HomeState extends State<Home> {
                             edit: edit,
                             tasks: tasks,
                             i: index,
-                            verifyComplete: verifyComplete,
+                            verifyDayComplete: verifyDayComplete,
                           ),
                         ],
                       ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/task.dart';
 
 class TaskDetailsDialog extends StatefulWidget {
-  final void Function(String, List<String>?)? taskDetails;
+  final void Function(String, Map<String, bool>?)? taskDetails;
   final Task? task;
 
   const TaskDetailsDialog({super.key, this.taskDetails, this.task});
@@ -17,7 +17,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
   TextEditingController subNamesController = TextEditingController();
   FocusNode myFocusNode = FocusNode();
   bool ifSubList = false;
-  List<String> subNames = [];
+  Map<String, bool> subNames = {};
 
   String title = 'Add Task';
 
@@ -26,9 +26,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
     if (widget.task != null) {
       title = widget.task!.name;
       taskNameController.text = title;
-      widget.task!.subList.forEach((e) {
-        subNames.add(e);
-      });
+      ifSubList = widget.task!.subList.isNotEmpty;
+      subNames = widget.task!.subList;
       setState(() {});
     }
     super.initState();
@@ -62,7 +61,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     title = value;
                     if (widget.task != null) {
                       widget.task!.name = value;
-                      widget.task!.isSubChecked.add(false);
+                      // widget.task!.isSubChecked.add(false);
                     }
                   });
                 },
@@ -86,29 +85,24 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                 ),
                 onSubmitted: (value) => setState(
                   () {
-                    subNames.add(value);
+                    subNames[value] = false;
                     subNamesController.clear();
                     myFocusNode.requestFocus();
                     if (widget.task != null) {
                       widget.task!.isChecked = false;
-                      widget.task!.isSubChecked.add(false);
                     }
                   },
                 ),
               ),
             if (ifSubList == true)
-              for (int i = 0; i < subNames.length; i++) Text(subNames[i]),
+              for (int i = 0; i < subNames.length; i++)
+                Text(subNames.keys.elementAt(i)),
             TextButton(
               onPressed: () {
-                // List<bool> len = [];
-                // subNames.forEach((element) {
-                //   len.add(false);
-                // });
                 widget.task != null
                     ? (
                         widget.task!.name = title,
                         widget.task!.subList = subNames,
-                        // widget.task!.isSubChecked = len,
                       )
                     : widget.taskDetails!(title, subNames);
                 setState(() {});
