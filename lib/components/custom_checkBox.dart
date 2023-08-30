@@ -22,7 +22,6 @@ class CustomCheckBox extends StatefulWidget {
 }
 
 class _CustomCheckBoxState extends State<CustomCheckBox> {
-  bool val = false;
   @override
   Widget build(BuildContext context) {
     return CheckboxListTile(
@@ -37,6 +36,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                       ? TaskDetailsDialog(
                           task: widget.tasks[widget.i],
                           taskDetails: widget.taskDetails,
+                          verifyDayComplete: widget.verifyDayComplete,
                         )
                       : AlertDialog(
                           title: Text(widget.tasks[widget.i].name),
@@ -73,13 +73,12 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                               TextButton(
                                 onPressed: () {
                                   if (!widget.tasks[widget.i].subList
-                                      .containsKey(false)) {
+                                      .containsValue(false)) {
                                     widget.tasks[widget.i].isChecked = true;
                                   } else {
                                     widget.tasks[widget.i].isChecked = false;
                                   }
                                   widget.verifyDayComplete();
-                                  setState(() {});
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text("DONE"),
@@ -97,13 +96,11 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                           return TaskDetailsDialog(
                             task: widget.tasks[widget.i],
                             taskDetails: widget.taskDetails,
+                            verifyDayComplete: widget.verifyDayComplete,
                           );
                         }),
                   )
                 : (widget.tasks[widget.i].isChecked = value!,);
-        setState(() {});
-        print('value = $value');
-        print('tasks = ${widget.tasks[widget.i].isChecked}');
         widget.verifyDayComplete();
       },
     );

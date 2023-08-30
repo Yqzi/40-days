@@ -4,9 +4,11 @@ import '../models/task.dart';
 
 class TaskDetailsDialog extends StatefulWidget {
   final void Function(String, Map<String, bool>?)? taskDetails;
+  final void Function()? verifyDayComplete;
   final Task? task;
 
-  const TaskDetailsDialog({super.key, this.taskDetails, this.task});
+  const TaskDetailsDialog(
+      {super.key, this.taskDetails, this.task, this.verifyDayComplete});
 
   @override
   State<TaskDetailsDialog> createState() => _TaskDetailsDialogState();
@@ -61,7 +63,6 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     title = value;
                     if (widget.task != null) {
                       widget.task!.name = value;
-                      // widget.task!.isSubChecked.add(false);
                     }
                   });
                 },
@@ -90,6 +91,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     myFocusNode.requestFocus();
                     if (widget.task != null) {
                       widget.task!.isChecked = false;
+                      widget.task!.addToSublist = value;
                     }
                   },
                 ),
@@ -102,10 +104,10 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                 widget.task != null
                     ? (
                         widget.task!.name = title,
-                        widget.task!.subList = subNames,
+                        widget.task!.isChecked = false,
                       )
                     : widget.taskDetails!(title, subNames);
-                setState(() {});
+                if (widget.task != null) widget.verifyDayComplete!();
                 Navigator.of(context).pop();
               },
               child: const Text("DONE"),

@@ -53,13 +53,14 @@ class _HomeState extends State<Home> {
     boxes[2] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
     int index = boxes.indexWhere((e) => e.completionDate == null);
     final isComplete = tasks.every((element) => element.isChecked == true);
-    tasks.forEach((element) {});
 
     if (isComplete) {
       if (index != 0) {
         if (boxes[index - 1].completionDate != null &&
             !boxes[index - 1].isToday) {
           boxes[index] = Box(completionDate: DateTime.now());
+        } else {
+          return;
         }
       } else {
         boxes[index] = Box(completionDate: DateTime.now());
@@ -77,6 +78,7 @@ class _HomeState extends State<Home> {
       boxes[index] = Box();
       _prefs.removeDays(index.toString());
     }
+
     setState(() {});
     return;
   }
