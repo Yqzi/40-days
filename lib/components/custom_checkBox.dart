@@ -3,88 +3,50 @@ import 'package:forty_days/components/task_details_dialog.dart';
 import 'package:forty_days/models/task.dart';
 
 class CustomCheckBox extends StatefulWidget {
-  final List<Task> tasks;
-  final int i;
+  final Task task;
   final void Function() verifyDayComplete;
-  final void Function(String, Map<String, bool>?)? taskDetails;
-  bool edit;
+  final void Function(String, Map<String, bool>?, bool)? taskDetails;
+  final bool edit;
 
-  CustomCheckBox(
-      {super.key,
-      required this.edit,
-      required this.tasks,
-      required this.i,
-      required this.verifyDayComplete,
-      required this.taskDetails});
+  const CustomCheckBox({
+    super.key,
+    required this.edit,
+    required this.task,
+    required this.verifyDayComplete,
+    required this.taskDetails,
+  });
 
   @override
   State<CustomCheckBox> createState() => _CustomCheckBoxState();
 }
 
 class _CustomCheckBoxState extends State<CustomCheckBox> {
+  // @override
+  // void dispose() {
+  //   widget.task.subList = subTasks;
+  //   super.dispose();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return CheckboxListTile(
-      value: widget.tasks[widget.i].isChecked,
-      title: Text(widget.tasks[widget.i].name),
+      value: widget.task.isChecked,
+      title: Text(widget.task.name),
       onChanged: (value) {
-        widget.tasks[widget.i].subList.isNotEmpty
+        widget.task.subList.isNotEmpty
             ? showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return widget.edit == true
                       ? TaskDetailsDialog(
-                          task: widget.tasks[widget.i],
+                          task: widget.task,
                           taskDetails: widget.taskDetails,
                           verifyDayComplete: widget.verifyDayComplete,
                         )
-                      : AlertDialog(
-                          title: Text(widget.tasks[widget.i].name),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              for (var j = 0;
-                                  j < widget.tasks[widget.i].subList.length;
-                                  j++)
-                                StatefulBuilder(
-                                  builder: (BuildContext context,
-                                      void Function(void Function()) setState) {
-                                    return CheckboxListTile(
-                                      value: widget
-                                          .tasks[widget.i].subList.values
-                                          .elementAt(j),
-                                      title: Text(widget
-                                          .tasks[widget.i].subList.keys
-                                          .elementAt(j)),
-                                      onChanged: (value) {
-                                        setState(
-                                          () {
-                                            widget.tasks[widget.i].subList[
-                                                widget.tasks[widget.i].subList
-                                                    .keys
-                                                    .elementAt(j)] = value!;
-                                            widget.verifyDayComplete();
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              TextButton(
-                                onPressed: () {
-                                  if (!widget.tasks[widget.i].subList
-                                      .containsValue(false)) {
-                                    widget.tasks[widget.i].isChecked = true;
-                                  } else {
-                                    widget.tasks[widget.i].isChecked = false;
-                                  }
-                                  widget.verifyDayComplete();
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text("DONE"),
-                              )
-                            ],
-                          ),
+                      : _Dialog(
+                          task: widget.task,
+                          verifyDayComplete: widget.verifyDayComplete,
+                          taskDetails: widget.taskDetails,
                         );
                 },
               )
@@ -94,15 +56,90 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                         context: context,
                         builder: (BuildContext context) {
                           return TaskDetailsDialog(
-                            task: widget.tasks[widget.i],
+                            task: widget.task,
                             taskDetails: widget.taskDetails,
                             verifyDayComplete: widget.verifyDayComplete,
                           );
                         }),
                   )
-                : (widget.tasks[widget.i].isChecked = value!,);
+                : (widget.task.isChecked = value!,);
         widget.verifyDayComplete();
       },
+    );
+  }
+}
+
+class _Dialog extends StatefulWidget {
+  final Task task;
+  final void Function() verifyDayComplete;
+  final void Function(String, Map<String, bool>?, bool)? taskDetails;
+
+  const _Dialog({
+    super.key,
+    required this.task,
+    required this.verifyDayComplete,
+    this.taskDetails,
+  });
+
+  @override
+  State<_Dialog> createState() => __DialogState();
+}
+
+class __DialogState extends State<_Dialog> {
+  late Map<String, bool> subTasks;
+
+  @override
+  void initState() {
+    super.initState();
+    subTasks = widget.task.subList;
+  }
+
+  void resetOtherCompletions() {
+    Task curr = widget.task;
+    if (curr.ifSelectOne) {
+      subTasks.reset();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.task.name),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var sub in subTasks.entries)
+            CheckboxListTile(
+              value: sub.value,
+              title: Text(sub.key),
+              onChanged: (value) {
+                setState(
+                  () {
+                    resetOtherCompletions();
+                    subTasks[sub.key] = value!;
+                    widget.verifyDayComplete();
+                    print(subTasks);
+                  },
+                );
+              },
+            ),
+          TextButton(
+            onPressed: () {
+              if (!widget.task.subList.containsValue(false)) {
+                widget.task.isChecked = true;
+              } else if (subTasks.containsValue(true) &&
+                  widget.task.ifSelectOne == true) {
+                widget.task.isChecked = true;
+              } else {
+                widget.task.isChecked = false;
+              }
+              widget.verifyDayComplete();
+              Navigator.of(context).pop();
+            },
+            child: const Text("DONE"),
+          )
+        ],
+      ),
     );
   }
 }

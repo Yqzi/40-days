@@ -29,8 +29,10 @@ class _HomeState extends State<Home> {
   DateTime yesterday = DateTime.now();
   bool edit = false;
 
-  void addTask(String name, Map<String, bool>? subList) {
-    tasks.add(Task(name: name, subList: subList ?? {}));
+  void addTask(String name, Map<String, bool>? subList, bool ifSelectOne) {
+    tasks.add(
+      Task(name: name, subList: subList ?? {}, ifSelectOne: ifSelectOne),
+    );
     verifyDayComplete();
     setState(() {});
   }
@@ -181,8 +183,7 @@ class _HomeState extends State<Home> {
                           CustomCheckBox(
                             taskDetails: addTask,
                             edit: edit,
-                            tasks: tasks,
-                            i: index,
+                            task: tasks[index],
                             verifyDayComplete: verifyDayComplete,
                           ),
                         ],

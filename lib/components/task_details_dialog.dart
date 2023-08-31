@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import '../models/task.dart';
 
 class TaskDetailsDialog extends StatefulWidget {
-  final void Function(String, Map<String, bool>?)? taskDetails;
+  final void Function(String, Map<String, bool>?, bool)? taskDetails;
   final void Function()? verifyDayComplete;
   final Task? task;
 
-  const TaskDetailsDialog(
-      {super.key, this.taskDetails, this.task, this.verifyDayComplete});
+  const TaskDetailsDialog({
+    super.key,
+    this.taskDetails,
+    this.task,
+    this.verifyDayComplete,
+  });
 
   @override
   State<TaskDetailsDialog> createState() => _TaskDetailsDialogState();
@@ -18,8 +22,9 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
   TextEditingController taskNameController = TextEditingController();
   TextEditingController subNamesController = TextEditingController();
   FocusNode myFocusNode = FocusNode();
-  bool ifSubList = false;
   Map<String, bool> subNames = {};
+  bool ifSelectOne = false;
+  bool ifSubList = false;
 
   String title = 'Add Task';
 
@@ -30,6 +35,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
       taskNameController.text = title;
       ifSubList = widget.task!.subList.isNotEmpty;
       subNames = widget.task!.subList;
+      ifSelectOne = widget.task!.ifSelectOne;
+      widget.task!.subList.reset();
       setState(() {});
     }
     super.initState();
@@ -67,13 +74,24 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   });
                 },
               ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  ifSubList = !ifSubList;
-                });
-              },
-              child: const Text("ADD SUBLIST +"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      ifSubList = !ifSubList;
+                    });
+                  },
+                  child: const Text("ADD SUBLIST +"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    ifSelectOne = !ifSelectOne;
+                  },
+                  child: const Text('Select One?'),
+                )
+              ],
             ),
             if (ifSubList == true)
               TextField(
@@ -101,12 +119,14 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                 Text(subNames.keys.elementAt(i)),
             TextButton(
               onPressed: () {
+                print(ifSelectOne);
                 widget.task != null
                     ? (
                         widget.task!.name = title,
                         widget.task!.isChecked = false,
+                        widget.task!.ifSelectOne = ifSelectOne,
                       )
-                    : widget.taskDetails!(title, subNames);
+                    : widget.taskDetails!(title, subNames, ifSelectOne);
                 if (widget.task != null) widget.verifyDayComplete!();
                 Navigator.of(context).pop();
               },
