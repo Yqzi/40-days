@@ -50,9 +50,18 @@ class _HomeState extends State<Home> {
   }
 
   void verifyDayComplete() {
-    boxes[0] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
-    boxes[1] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
-    boxes[2] = Box(completionDate: DateTime.now().subtract(Duration(days: 1)));
+    boxes[0] = Box(
+        completionDate: DateTime.now().subtract(Duration(days: 1)),
+        lines: tasks.length,
+        tasks: tasks.length);
+    boxes[1] = Box(
+        completionDate: DateTime.now().subtract(Duration(days: 1)),
+        lines: tasks.length,
+        tasks: tasks.length);
+    boxes[2] = Box(
+        completionDate: DateTime.now().subtract(Duration(days: 1)),
+        lines: tasks.length,
+        tasks: tasks.length);
     int index = boxes.indexWhere((e) => e.completionDate == null);
     final isComplete = tasks.every((element) => element.isChecked == true);
 
@@ -60,12 +69,20 @@ class _HomeState extends State<Home> {
       if (index != 0) {
         if (boxes[index - 1].completionDate != null &&
             !boxes[index - 1].isToday) {
-          boxes[index] = Box(completionDate: DateTime.now());
+          boxes[index] = Box(
+            completionDate: DateTime.now(),
+            tasks: tasks.length,
+            lines: tasks.length,
+          );
         } else {
           return;
         }
       } else {
-        boxes[index] = Box(completionDate: DateTime.now());
+        boxes[index] = Box(
+          completionDate: DateTime.now(),
+          tasks: tasks.length,
+          lines: tasks.length,
+        );
       }
       _prefs.saveDays(index.toString(), boxes[index].completionDate!);
       setState(() {});
