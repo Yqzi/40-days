@@ -5,6 +5,7 @@ import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/models/task.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
 
+import 'components/box_widget.dart';
 import 'components/task_details_dialog.dart';
 
 void main() {
@@ -50,56 +51,79 @@ class _HomeState extends State<Home> {
   }
 
   void verifyDayComplete() {
-    boxes[0] = Box(
-        completionDate: DateTime.now().subtract(Duration(days: 1)),
-        lines: tasks.length,
-        tasks: tasks.length);
-    boxes[1] = Box(
-        completionDate: DateTime.now().subtract(Duration(days: 1)),
-        lines: tasks.length,
-        tasks: tasks.length);
-    boxes[2] = Box(
-        completionDate: DateTime.now().subtract(Duration(days: 1)),
-        lines: tasks.length,
-        tasks: tasks.length);
+    // final isComplete = tasks.every((element) => element.isChecked == true);
     int index = boxes.indexWhere((e) => e.completionDate == null);
-    final isComplete = tasks.every((element) => element.isChecked == true);
+    int lines = tasks.where((e) => e.isChecked == true).length;
 
-    if (isComplete) {
-      if (index != 0) {
-        if (boxes[index - 1].completionDate != null &&
-            !boxes[index - 1].isToday) {
-          boxes[index] = Box(
-            completionDate: DateTime.now(),
-            tasks: tasks.length,
-            lines: tasks.length,
-          );
-        } else {
-          return;
-        }
-      } else {
-        boxes[index] = Box(
-          completionDate: DateTime.now(),
-          tasks: tasks.length,
-          lines: tasks.length,
-        );
-      }
-      _prefs.saveDays(index.toString(), boxes[index].completionDate!);
+    if (lines == tasks.length && lines > 0) {
+      boxes[index - 1] = Box(completionDate: DateTime.now(), complete: true);
       setState(() {});
       return;
     }
-    // if not complete
-    // reset latest checkbox
-    else if (index != 0 && boxes[index - 1].isToday) {
-      boxes[index - 1] = Box();
-      _prefs.removeDays((index - 1).toString());
+
+    if (lines > 0) {
+      if (index > 0 && boxes[index - 1].isToday) {
+        boxes[index - 1].complete = false;
+        boxes[index - 1].lines = lines;
+        boxes[index - 1].tasks = lines;
+      } else {
+        boxes[index] = Box(
+          completionDate: DateTime.now(),
+          tasks: lines,
+          lines: lines,
+        );
+      }
+      setState(() {});
+      return;
     } else {
-      boxes[index] = Box();
-      _prefs.removeDays(index.toString());
+      if (index > 0 && boxes[index - 1].isToday) {
+        boxes[index - 1] = Box();
+      } else {
+        boxes[index] = Box();
+      }
+      setState(() {});
+      return;
     }
 
-    setState(() {});
-    return;
+    // if (isComplete) {
+    //   print('4');
+    //   if (index != 0) {
+    //     if (boxes[index - 1].completionDate != null &&
+    //         !boxes[index - 1].isToday) {
+    //       boxes[index] = Box(
+    //         completionDate: DateTime.now(),
+    //         tasks: tasks.length,
+    //         lines: tasks.length,
+    //       );
+    //     } else if (boxes[index - 1].isToday) {
+    //       boxes[index - 1].lines = tasks.length;
+    //       boxes[index - 1].tasks = tasks.length;
+    //     } else {
+    //       return;
+    //     }
+    //   } else {
+    //     boxes[index] = Box(
+    //       completionDate: DateTime.now(),
+    //       tasks: tasks.length,
+    //       lines: tasks.length,
+    //     );
+    //   }
+    //   _prefs.saveDays(index.toString(), boxes[index].completionDate!);
+    //   setState(() {});
+    //   return;
+    // }
+    // // if not complete
+    // // reset latest checkbox
+    // else if (index != 0 && boxes[index - 1].isToday) {
+    //   boxes[index - 1] = Box();
+    //   _prefs.removeDays((index - 1).toString());
+    // } else {
+    //   boxes[index] = Box();
+    //   _prefs.removeDays(index.toString());
+    // }
+
+    // setState(() {});
+    // return;
   }
 
   void resetTaskCompletion() {
@@ -153,7 +177,7 @@ class _HomeState extends State<Home> {
                   childAspectRatio: 1,
                 ),
                 children: [
-                  for (var box in boxes) box.createBox(),
+                  for (var box in boxes) BoxWidget(box: box),
                 ],
               ),
             ),

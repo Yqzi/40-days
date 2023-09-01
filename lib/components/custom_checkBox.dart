@@ -118,7 +118,6 @@ class __DialogState extends State<_Dialog> {
                     resetOtherCompletions();
                     subTasks[sub.key] = value!;
                     widget.verifyDayComplete();
-                    print(subTasks);
                   },
                 );
               },
