@@ -3,26 +3,30 @@ import 'package:flutter/material.dart';
 class Box {
   final Color color;
   final DateTime? completionDate;
-  bool complete;
   int lines;
   int tasks;
 
   Box({
     this.completionDate,
-    this.complete = false,
     this.color = Colors.orange,
     this.lines = 0,
-    this.tasks = 0,
+    required this.tasks,
   });
 
   bool get isToday => completionDate?.day == DateTime.now().day;
+  bool get isComplete => lines == tasks;
+
+  @override
+  String toString() {
+    return "${super.toString()} + $completionDate + $lines";
+  }
 
   @override
   bool operator ==(Object other) {
     if (other is! Box) return false;
-    return other.lines == lines && runtimeType == other.runtimeType;
+    return toString() == other.toString() && runtimeType == other.runtimeType;
   }
 
   @override
-  int get hashCode => lines.hashCode;
+  int get hashCode => toString().hashCode;
 }

@@ -43,7 +43,9 @@ class _HomeState extends State<Home> {
       for (int i = 0; i < 40; i++) {
         DateTime? x = await _prefs.loadDays(i.toString());
         boxes.add(
-          x == null ? Box() : Box(completionDate: x),
+          x == null
+              ? Box(tasks: tasks.length)
+              : Box(completionDate: x, tasks: tasks.length),
         );
       }
     }
@@ -51,35 +53,38 @@ class _HomeState extends State<Home> {
   }
 
   void verifyDayComplete() {
-    // final isComplete = tasks.every((element) => element.isChecked == true);
     int index = boxes.indexWhere((e) => e.completionDate == null);
     int lines = tasks.where((e) => e.isChecked == true).length;
 
     if (lines == tasks.length && lines > 0) {
-      boxes[index - 1] = Box(completionDate: DateTime.now(), complete: true);
+      boxes[index - 1] = Box(
+        completionDate: DateTime.now(),
+        tasks: tasks.length,
+        lines: lines,
+      );
       setState(() {});
       return;
     }
 
     if (lines > 0) {
       if (index > 0 && boxes[index - 1].isToday) {
-        boxes[index - 1].complete = false;
         boxes[index - 1].lines = lines;
-        boxes[index - 1].tasks = lines;
+        print(boxes[index - 1]);
       } else {
         boxes[index] = Box(
           completionDate: DateTime.now(),
-          tasks: lines,
+          tasks: tasks.length,
           lines: lines,
         );
       }
       setState(() {});
+      print(boxes[index]);
       return;
     } else {
       if (index > 0 && boxes[index - 1].isToday) {
-        boxes[index - 1] = Box();
+        boxes[index - 1] = Box(tasks: tasks.length);
       } else {
-        boxes[index] = Box();
+        boxes[index] = Box(tasks: tasks.length);
       }
       setState(() {});
       return;

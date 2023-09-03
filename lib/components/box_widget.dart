@@ -18,11 +18,10 @@ class BoxWidget extends StatelessWidget {
       ),
       child: box.completionDate == null
           ? null
-          : box.complete == true
+          : box.isComplete
               ? const Icon(FontAwesomeIcons.faceSmile)
               : CustomPaint(
-                  foregroundPainter:
-                      LinePainter(lines: box.lines, tasks: box.tasks),
+                  foregroundPainter: LinePainter(lines: box.lines),
                 ),
     );
   }
@@ -30,24 +29,22 @@ class BoxWidget extends StatelessWidget {
 
 class LinePainter extends CustomPainter {
   int lines;
-  int tasks;
 
-  LinePainter({required this.lines, required this.tasks});
+  LinePainter({required this.lines});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    print(lines);
 
     for (int i = 0; i < lines; i++) {
       canvas.drawLine(
-        Offset(size.width / (tasks + 1) * (i + 1), size.height / 6),
-        Offset(size.width / (tasks + 1) * (i + 1), size.height * 5 / 6),
+        Offset(size.width / (lines + 1) * (i + 1), size.height / 6),
+        Offset(size.width / (lines + 1) * (i + 1), size.height * 5 / 6),
         paint,
       );
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
