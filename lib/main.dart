@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/models/box.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/models/task.dart';
+import 'package:forty_days/repos/data_base.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
 
 import 'components/box_widget.dart';
@@ -25,6 +26,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final Preferences _prefs = Preferences();
+  final CustomDatabase customDatabase = CustomDatabase();
   List<Task> tasks = [];
   List<Box> boxes = [];
   DateTime yesterday = DateTime.now();
@@ -34,6 +36,18 @@ class _HomeState extends State<Home> {
     tasks.add(
       Task(name: name, subList: subList ?? {}, ifSelectOne: ifSelectOne),
     );
+    customDatabase.createTask(name: name, checked: false);
+    if (subList!.isNotEmpty) {
+      for (var sName in subList.keys) {
+        customDatabase.createSubTask(
+          parentName: name,
+          subName: sName,
+          subChecked: false,
+          ifSelectOne: ifSelectOne,
+        );
+      }
+    }
+
     verifyDayComplete();
     setState(() {});
   }
@@ -41,11 +55,16 @@ class _HomeState extends State<Home> {
   void addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
-        DateTime? x = await _prefs.loadDays(i.toString());
+        Map? x = await _prefs.loadDays(i.toString());
         boxes.add(
           x == null
               ? Box(tasks: tasks.length)
-              : Box(completionDate: x, tasks: tasks.length),
+              : Box(
+                  completionDate: x['completionDate'],
+                  isComplete: x['isComplete'],
+                  lines: x['lines'],
+                  tasks: x['tasks'],
+                ),
         );
       }
     }
@@ -55,12 +74,22 @@ class _HomeState extends State<Home> {
   void verifyDayComplete() {
     int index = boxes.indexWhere((e) => e.completionDate == null);
     int lines = tasks.where((e) => e.isChecked == true).length;
+    var y = 0;
 
     if (lines == tasks.length && lines > 0) {
-      boxes[index - 1] = Box(
+      var x = index > 0 ? index - 1 : index;
+      boxes[x] = Box(
         completionDate: DateTime.now(),
+        isComplete: true,
         tasks: tasks.length,
         lines: lines,
+      );
+      _prefs.saveDays(
+        index: x.toString(),
+        completionDate: boxes[x].completionDate!,
+        isComplete: true,
+        lines: lines,
+        tasks: tasks.length,
       );
       setState(() {});
       return;
@@ -68,24 +97,34 @@ class _HomeState extends State<Home> {
 
     if (lines > 0) {
       if (index > 0 && boxes[index - 1].isToday) {
+        boxes[index - 1].isComplete = false;
         boxes[index - 1].lines = lines;
-        print(boxes[index - 1]);
+        y = index - 1;
       } else {
         boxes[index] = Box(
           completionDate: DateTime.now(),
           tasks: tasks.length,
           lines: lines,
         );
+        y = index;
       }
+      _prefs.saveDays(
+        index: y.toString(),
+        completionDate: boxes[y].completionDate!,
+        lines: lines,
+        tasks: tasks.length,
+      );
       setState(() {});
-      print(boxes[index]);
       return;
     } else {
       if (index > 0 && boxes[index - 1].isToday) {
         boxes[index - 1] = Box(tasks: tasks.length);
+        y = index - 1;
       } else {
         boxes[index] = Box(tasks: tasks.length);
+        y = index;
       }
+      _prefs.removeDays(y.toString());
       setState(() {});
       return;
     }

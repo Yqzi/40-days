@@ -13,8 +13,7 @@ class Task {
     this.ifSelectOne = false,
   });
 
-  factory Task.fromJson(Map<String, dynamic> map) =>
-      Task(name: map['name'], subList: map[[]]);
+  factory Task.fromJson(Map<String, dynamic> map) => Task(name: map['name']);
 
   bool isChecked = false;
 }

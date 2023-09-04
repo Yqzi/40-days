@@ -1,5 +1,6 @@
 import 'package:forty_days/models/task.dart';
 import 'package:sqflite/sqflite.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 
 const tableName1 = 'Tasks';
@@ -16,24 +17,24 @@ class CustomDatabase {
     return _database!;
   }
 
-  Future<String> get fullPath async {
+  Future<String> get _fullPath async {
     const name = 'database.db';
     final path = await getDatabasesPath();
     return join(path, name);
   }
 
   Future<Database> _initialize() async {
-    final path = await fullPath;
+    final path = await _fullPath;
     var _database = await openDatabase(
       path,
       version: 1,
-      onCreate: createTable,
+      onCreate: _createTable,
       singleInstance: true,
     );
     return _database;
   }
 
-  Future<void> createTable(Database database, int version) async {
+  Future<void> _createTable(Database database, int version) async {
     await database.execute(
       """
       CREATE TABLE IF NOT EXISTS $tableName1 (
@@ -48,6 +49,7 @@ class CustomDatabase {
       "parentName" TEXT NOT NULL 
       "subName" TEXT UNIQUE NOT NULL,
       "isSubChecked" INTEGER NOT NULL,
+      "ifSelectOne" INTEGER NOT NULL,
       FOREIGN KEY(parentName) REFERENCES $tableName1(name)
       PRIMARY KEY (parentName, name)
       ); 
@@ -57,23 +59,22 @@ class CustomDatabase {
 
   Future<int> createTask({required String name, required bool checked}) async {
     int check = checked == true ? 1 : 0;
-    final database = await CustomDatabase().database;
-    return await database.rawInsert(
-      "ISERT INTO $tableName1 (name, isChecked) VALUES (?,?)",
+    return (await database).rawInsert(
+      "INSERT INTO $tableName1 (name, isChecked) VALUES (?,?)",
       [name, check],
     );
   }
 
-  Future<int> createSubTask({
-    required String parentName,
-    required String subName,
-    required bool subChecked,
-  }) async {
+  Future<int> createSubTask(
+      {required String parentName,
+      required String subName,
+      required bool subChecked,
+      required bool ifSelectOne}) async {
     int check = subChecked == true ? 1 : 0;
-    final database = await CustomDatabase().database;
-    return await database.rawInsert(
-      "INSERT INTO $tableName2 (parentName, subName, isSubChecked) VALUES (?, ? ,?)",
-      [parentName, subName, check],
+    int one = ifSelectOne == true ? 1 : 0;
+    return (await database).rawInsert(
+      "INSERT INTO $tableName2 (parentName, subName, isSubChecked, ifSelectOne) VALUES (?, ?, ?, ?)",
+      [parentName, subName, check, one],
     );
   }
 
@@ -86,12 +87,17 @@ class CustomDatabase {
     List<Map> sub = subQuery.map((e) => e).toList();
 
     tasks.forEach((task) {
-      List<Map> q = sub.where((q) => q['parentName'] == task.name).toList();
+      List<Map> q = sub.where((e) => e['parentName'] == task.name).toList();
 
       q.forEach((element) {
         task.addToSublist = element['subName'];
       });
     });
     return tasks;
+  }
+
+  Future<void> updateTask({required Task task}) async {
+    await (await database).rawQuery("""
+""");
   }
 }

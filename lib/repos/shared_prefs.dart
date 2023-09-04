@@ -4,16 +4,33 @@ class Preferences {
   final Future<SharedPreferences> _preferences =
       SharedPreferences.getInstance();
 
-  void saveDays(String index, DateTime value) async {
+  void saveDays({
+    required String index,
+    required DateTime completionDate,
+    bool isComplete = false,
+    required int lines,
+    required int tasks,
+  }) async {
     var prefs = await _preferences;
-    prefs.setString(index, value.toString());
+    prefs.setString(index, completionDate.toString());
+    prefs.setStringList(index, [
+      completionDate.toString(),
+      isComplete.toString(),
+      lines.toString(),
+      tasks.toString()
+    ]);
   }
 
-  Future<DateTime?> loadDays(String index) async {
+  Future<Map?> loadDays(String index) async {
     var prefs = await _preferences;
-    var s = prefs.getString(index);
+    Map x = {};
+    var s = prefs.getStringList(index);
     if (s == null) return null;
-    return DateTime.parse(s);
+    x['completionDate'] = DateTime.parse(s[0]);
+    x['isComplete'] = bool.parse(s[1]);
+    x['lines'] = int.parse(s[2]);
+    x['tasks'] = int.parse(s[3]);
+    return x;
   }
 
   void removeDays(String index) async {
