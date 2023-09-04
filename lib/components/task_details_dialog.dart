@@ -42,6 +42,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
     super.initState();
   }
 
+  void updateTask() {}
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

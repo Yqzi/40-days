@@ -96,8 +96,8 @@ class CustomDatabase {
     return tasks;
   }
 
-  Future<void> updateTask({required Task task}) async {
-    await (await database).rawQuery("""
-""");
+  Future<void> updateTask(newName, newChecked, {required Task task}) async {
+    await (await database).rawQuery(
+        '''UPDATE $tableName1 SET name = $newName, isChecked = $newChecked WHERE  ${task.name}''');
   }
 }
