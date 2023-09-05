@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/task.dart';
+import '../repos/data_base.dart';
 
 class TaskDetailsDialog extends StatefulWidget {
   final void Function(String, Map<String, bool>?, bool)? taskDetails;
@@ -19,6 +20,7 @@ class TaskDetailsDialog extends StatefulWidget {
 }
 
 class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
+  CustomDatabase customDatabase = CustomDatabase();
   TextEditingController taskNameController = TextEditingController();
   TextEditingController subNamesController = TextEditingController();
   FocusNode myFocusNode = FocusNode();
@@ -42,7 +44,31 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
     super.initState();
   }
 
-  void updateTask() {}
+  void updateTask({String? title, bool? checked, String? value, bool? one}) {
+    if (title != null) {
+      widget.task!.name = title;
+    }
+    if (checked != null) {
+      widget.task!.isChecked = checked;
+    }
+    if (value != null) {
+      widget.task!.addToSublist(value);
+    }
+    if (one != null) {
+      widget.task!.ifSelectOne = one;
+    }
+    var x;
+    widget.task!.subList.forEach((key, value) {
+      x = key;
+    });
+
+    customDatabase.updateTask(
+      widget.task!.name,
+      widget.task!.isChecked,
+      x,
+      task: widget.task!,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +97,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   setState(() {
                     title = value;
                     if (widget.task != null) {
-                      widget.task!.name = value;
+                      updateTask(title: value);
                     }
                   });
                 },
@@ -110,8 +136,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     subNamesController.clear();
                     myFocusNode.requestFocus();
                     if (widget.task != null) {
-                      widget.task!.isChecked = false;
-                      widget.task!.addToSublist = value;
+                      updateTask(checked: false, value: value);
                     }
                   },
                 ),
@@ -121,12 +146,13 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                 Text(subNames.keys.elementAt(i)),
             TextButton(
               onPressed: () {
-                print(ifSelectOne);
                 widget.task != null
                     ? (
-                        widget.task!.name = title,
-                        widget.task!.isChecked = false,
-                        widget.task!.ifSelectOne = ifSelectOne,
+                        () => updateTask(
+                              title: title,
+                              checked: false,
+                              one: ifSelectOne,
+                            ),
                       )
                     : widget.taskDetails!(title, subNames, ifSelectOne);
                 if (widget.task != null) widget.verifyDayComplete!();

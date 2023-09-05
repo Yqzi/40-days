@@ -39,65 +39,79 @@ class CustomDatabase {
       """
       CREATE TABLE IF NOT EXISTS $tableName1 (
       "name" TEXT PRIMARY KEY,
-      "isChecked" INTEGER NOT NULL,
+      "ifSelectOne" INTEGER NOT NULL,
+      "isChecked" INTEGER NOT NULL
       ); 
     """,
     );
     await database.execute(
       """
       CREATE TABLE IF NOT EXISTS $tableName2 (
-      "parentName" TEXT NOT NULL 
+      "parentName" TEXT NOT NULL, 
       "subName" TEXT UNIQUE NOT NULL,
       "isSubChecked" INTEGER NOT NULL,
-      "ifSelectOne" INTEGER NOT NULL,
-      FOREIGN KEY(parentName) REFERENCES $tableName1(name)
-      PRIMARY KEY (parentName, name)
+      FOREIGN KEY(parentName) REFERENCES $tableName1(name),
+      PRIMARY KEY (parentName, subName)
       ); 
     """,
     );
   }
 
-  Future<int> createTask({required String name, required bool checked}) async {
+  Future<int> createTask({
+    required String name,
+    required bool ifSelectOne,
+    required bool checked,
+  }) async {
     int check = checked == true ? 1 : 0;
-    return (await database).rawInsert(
-      "INSERT INTO $tableName1 (name, isChecked) VALUES (?,?)",
-      [name, check],
+    int one = ifSelectOne == true ? 1 : 0;
+    return await (await database).rawInsert(
+      "INSERT INTO $tableName1 (name, ifSelectOne, isChecked) VALUES (?,?,?)",
+      [name, one, check],
     );
   }
 
-  Future<int> createSubTask(
-      {required String parentName,
-      required String subName,
-      required bool subChecked,
-      required bool ifSelectOne}) async {
+  Future<int> createSubTask({
+    required String parentName,
+    required String subName,
+    required bool subChecked,
+  }) async {
     int check = subChecked == true ? 1 : 0;
-    int one = ifSelectOne == true ? 1 : 0;
-    return (await database).rawInsert(
-      "INSERT INTO $tableName2 (parentName, subName, isSubChecked, ifSelectOne) VALUES (?, ?, ?, ?)",
-      [parentName, subName, check, one],
+    return await (await database).rawInsert(
+      "INSERT INTO $tableName2 (parentName, subName, isSubChecked) VALUES (?, ?, ?)",
+      [parentName, subName, check],
     );
   }
 
   Future<List<Task>> fetchAll() async {
-    final database = await CustomDatabase().database;
-    final tasksQuery = await database.rawQuery('''SELECT * FROM $tableName1''');
-    final subQuery = await database.rawQuery('''SELECT * FROM $tableName2''');
+    final tasksQuery =
+        await (await database).rawQuery('''SELECT * FROM $tableName1''');
+    final subQuery =
+        await (await database).rawQuery('''SELECT * FROM $tableName2''');
+
+    tasksQuery.forEach((element) {
+      print(element['isChecked']);
+    });
 
     List<Task> tasks = tasksQuery.map((e) => Task.fromJson(e)).toList();
-    List<Map> sub = subQuery.map((e) => e).toList();
+    List<Map> sub = subQuery;
 
     tasks.forEach((task) {
       List<Map> q = sub.where((e) => e['parentName'] == task.name).toList();
 
       q.forEach((element) {
-        task.addToSublist = element['subName'];
+        task.addToSublist(element['subName'],
+            b: element['isSubChecked'] == 1 ? true : false);
       });
     });
     return tasks;
   }
 
-  Future<void> updateTask(newName, newChecked, {required Task task}) async {
+  Future<void> updateTask(String newName, bool newChecked, String newSubName,
+      {required Task task}) async {
+    int check = newChecked == true ? 1 : 0;
     await (await database).rawQuery(
-        '''UPDATE $tableName1 SET name = $newName, isChecked = $newChecked WHERE  ${task.name}''');
+        '''UPDATE $tableName1 SET name = $newName, isChecked = $check WHERE  ${task.name}''');
+    await (await database)
+        .rawQuery('''UPDATE $tableName2 SET subName = $newSubName''');
   }
 }

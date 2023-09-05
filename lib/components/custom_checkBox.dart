@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forty_days/components/task_details_dialog.dart';
 import 'package:forty_days/models/task.dart';
+import 'package:forty_days/repos/data_base.dart';
 
 class CustomCheckBox extends StatefulWidget {
   final Task task;
@@ -87,11 +88,22 @@ class _Dialog extends StatefulWidget {
 
 class __DialogState extends State<_Dialog> {
   late Map<String, bool> subTasks;
+  CustomDatabase customDatabase = CustomDatabase();
 
   @override
   void initState() {
     super.initState();
     subTasks = widget.task.subList;
+  }
+
+  void updateTask({String? name, bool? sub, bool? newChecked}) {
+    var x;
+    widget.task.subList.forEach((key, value) {
+      x = key;
+    });
+    customDatabase.updateTask(
+        name ?? widget.task.name, newChecked ?? widget.task.isChecked, sub ?? x,
+        task: widget.task);
   }
 
   void resetOtherCompletions() {
@@ -117,6 +129,7 @@ class __DialogState extends State<_Dialog> {
                   () {
                     resetOtherCompletions();
                     subTasks[sub.key] = value!;
+                    updateTask(sub: value);
                     widget.verifyDayComplete();
                   },
                 );
@@ -124,14 +137,19 @@ class __DialogState extends State<_Dialog> {
             ),
           TextButton(
             onPressed: () {
+              bool y = false;
               if (!widget.task.subList.containsValue(false)) {
                 widget.task.isChecked = true;
+                y = true;
               } else if (subTasks.containsValue(true) &&
                   widget.task.ifSelectOne == true) {
                 widget.task.isChecked = true;
+                y = true;
               } else {
                 widget.task.isChecked = false;
+                y = false;
               }
+              updateTask(newChecked: y);
               widget.verifyDayComplete();
               Navigator.of(context).pop();
             },

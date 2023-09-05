@@ -36,14 +36,14 @@ class _HomeState extends State<Home> {
     tasks.add(
       Task(name: name, subList: subList ?? {}, ifSelectOne: ifSelectOne),
     );
-    customDatabase.createTask(name: name, checked: false);
+    customDatabase.createTask(
+        name: name, checked: false, ifSelectOne: ifSelectOne);
     if (subList!.isNotEmpty) {
       for (var sName in subList.keys) {
         customDatabase.createSubTask(
           parentName: name,
           subName: sName,
           subChecked: false,
-          ifSelectOne: ifSelectOne,
         );
       }
     }
@@ -187,9 +187,15 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void setTasks() async {
+    tasks = await customDatabase.fetchAll();
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
+    setTasks();
     addDay();
     resetTaskCompletion();
   }

@@ -3,8 +3,8 @@ class Task {
   Map<String, bool> subList;
   bool ifSelectOne;
 
-  set addToSublist(String s) {
-    subList[s] = false;
+  void addToSublist(String s, {bool? b}) {
+    subList[s] = b ?? false;
   }
 
   Task({
@@ -13,7 +13,9 @@ class Task {
     this.ifSelectOne = false,
   });
 
-  factory Task.fromJson(Map<String, dynamic> map) => Task(name: map['name']);
+  factory Task.fromJson(Map<String, dynamic> map) => Task(name: map['name'])
+    ..isChecked = map['isChecked'] == 1 ? true : false
+    ..ifSelectOne = map['ifSelectOne'] == 1 ? true : false;
 
   bool isChecked = false;
 }
