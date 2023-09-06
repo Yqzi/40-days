@@ -64,6 +64,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
 
     customDatabase.updateTask(
       widget.task!.name,
+      widget.task!.ifSelectOne,
       widget.task!.isChecked,
       x,
       task: widget.task!,

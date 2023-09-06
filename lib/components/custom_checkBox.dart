@@ -96,14 +96,19 @@ class __DialogState extends State<_Dialog> {
     subTasks = widget.task.subList;
   }
 
-  void updateTask({String? name, bool? sub, bool? newChecked}) {
+  void updateTask(
+      {String? name, bool? sub, bool? newChecked, bool? ifSelectOne}) {
     var x;
     widget.task.subList.forEach((key, value) {
       x = key;
     });
     customDatabase.updateTask(
-        name ?? widget.task.name, newChecked ?? widget.task.isChecked, sub ?? x,
-        task: widget.task);
+      name ?? widget.task.name,
+      ifSelectOne ?? widget.task.ifSelectOne,
+      newChecked ?? widget.task.isChecked,
+      sub ?? x,
+      task: widget.task,
+    );
   }
 
   void resetOtherCompletions() {

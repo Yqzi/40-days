@@ -106,12 +106,18 @@ class CustomDatabase {
     return tasks;
   }
 
-  Future<void> updateTask(String newName, bool newChecked, String newSubName,
+  Future<void> updateTask(
+      String newName, bool ifSelectOne, bool newChecked, String newSubName,
       {required Task task}) async {
     int check = newChecked == true ? 1 : 0;
+    int one = ifSelectOne == true ? 1 : 0;
     await (await database).rawQuery(
-        '''UPDATE $tableName1 SET name = $newName, isChecked = $check WHERE  ${task.name}''');
-    await (await database)
-        .rawQuery('''UPDATE $tableName2 SET subName = $newSubName''');
+        '''UPDATE $tableName1 SET name = $newName, ifSelectOne = $one, isChecked = $check WHERE  ${task.name}''');
+
+    // REMINDER ADD INSTEAD OF UPDATE TO MAKE MORE SUB ITEMS.
+    if (!task.subList.containsKey(newSubName)) {
+      createSubTask(
+          parentName: newName, subName: newSubName, subChecked: false);
+    }
   }
 }
