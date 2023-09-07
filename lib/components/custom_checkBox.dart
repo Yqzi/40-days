@@ -97,7 +97,7 @@ class __DialogState extends State<_Dialog> {
   }
 
   void updateTask(
-      {String? name, bool? sub, bool? newChecked, bool? ifSelectOne}) {
+      {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
     var x;
     widget.task.subList.forEach((key, value) {
       x = key;
@@ -134,7 +134,7 @@ class __DialogState extends State<_Dialog> {
                   () {
                     resetOtherCompletions();
                     subTasks[sub.key] = value!;
-                    updateTask(sub: value);
+                    // updateTask(sub: value);
                     widget.verifyDayComplete();
                   },
                 );

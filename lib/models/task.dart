@@ -9,13 +9,14 @@ class Task {
 
   Task({
     required this.name,
-    this.subList = const {},
+    required this.subList,
     this.ifSelectOne = false,
   });
 
-  factory Task.fromJson(Map<String, dynamic> map) => Task(name: map['name'])
-    ..isChecked = map['isChecked'] == 1 ? true : false
-    ..ifSelectOne = map['ifSelectOne'] == 1 ? true : false;
+  factory Task.fromJson(Map<String, dynamic> map) =>
+      Task(name: map['name'], subList: {})
+        ..isChecked = map['isChecked'] == 1 ? true : false
+        ..ifSelectOne = map['ifSelectOne'] == 1 ? true : false;
 
   bool isChecked = false;
 }
