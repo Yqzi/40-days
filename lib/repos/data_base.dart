@@ -112,7 +112,7 @@ class CustomDatabase {
     int check = newChecked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
     await (await database).rawQuery(
-        '''UPDATE $tableName1 SET name = $newName, ifSelectOne = $one, isChecked = $check WHERE name = ${task.name}''');
+        '''UPDATE $tableName1 SET name = "$newName", ifSelectOne = "$one", isChecked = "$check" WHERE name = "${task.name}" ''');
 
     // REMINDER ADD INSTEAD OF UPDATE TO MAKE MORE SUB ITEMS.
     if (!task.subList.containsKey(newSubName)) {
