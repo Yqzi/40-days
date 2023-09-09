@@ -44,29 +44,25 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
     super.initState();
   }
 
-  void updateTask({String? title, bool? checked, String? value, bool? one}) {
+  void updateTask({String? title, bool? checked, String? sub, bool? one}) {
     if (title != null) {
       widget.task!.name = title;
     }
     if (checked != null) {
       widget.task!.isChecked = checked;
     }
-    if (value != null) {
-      widget.task!.addToSublist(value);
+    if (sub != null) {
+      widget.task!.addToSublist(sub);
     }
     if (one != null) {
       widget.task!.ifSelectOne = one;
     }
-    var x;
-    widget.task!.subList.forEach((key, value) {
-      x = key;
-    });
-
     customDatabase.updateTask(
       widget.task!.name,
       widget.task!.ifSelectOne,
       widget.task!.isChecked,
-      x,
+      widget.task!.subList.keys.lastOrNull,
+      widget.task!.subList[sub ?? widget.task!.subList.keys.lastOrNull],
       task: widget.task!,
     );
   }
@@ -137,7 +133,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     subNamesController.clear();
                     myFocusNode.requestFocus();
                     if (widget.task != null) {
-                      updateTask(checked: false, value: value);
+                      updateTask(checked: false, sub: value);
                     }
                   },
                 ),
@@ -148,15 +144,17 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
             TextButton(
               onPressed: () {
                 widget.task != null
-                    ? (
-                        () => updateTask(
-                              title: title,
-                              checked: false,
-                              one: ifSelectOne,
-                            ),
-                      )
+                    ? ()
                     : widget.taskDetails!(title, subNames, ifSelectOne);
-                if (widget.task != null) widget.verifyDayComplete!();
+                if (widget.task != null) {
+                  widget.verifyDayComplete!();
+                  updateTask(
+                    title: title,
+                    checked: false,
+                    one: ifSelectOne,
+                  );
+                }
+                ;
                 Navigator.of(context).pop();
               },
               child: const Text("DONE"),

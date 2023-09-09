@@ -22,11 +22,25 @@ class CustomCheckBox extends StatefulWidget {
 }
 
 class _CustomCheckBoxState extends State<CustomCheckBox> {
+  CustomDatabase customDatabase = CustomDatabase();
   // @override
   // void dispose() {
   //   widget.task.subList = subTasks;
   //   super.dispose();
   // }
+
+  void updateTask(
+      {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
+    print('ran func');
+    customDatabase.updateTask(
+      name ?? widget.task.name,
+      ifSelectOne ?? widget.task.ifSelectOne,
+      newChecked ?? widget.task.isChecked,
+      sub ?? widget.task.subList.keys.lastOrNull,
+      widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
+      task: widget.task,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +78,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                         }),
                   )
                 : (widget.task.isChecked = value!,);
+        if (!widget.edit) updateTask(newChecked: value);
         widget.verifyDayComplete();
       },
     );
@@ -98,15 +113,12 @@ class __DialogState extends State<_Dialog> {
 
   void updateTask(
       {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
-    var x;
-    widget.task.subList.forEach((key, value) {
-      x = key;
-    });
     customDatabase.updateTask(
       name ?? widget.task.name,
       ifSelectOne ?? widget.task.ifSelectOne,
       newChecked ?? widget.task.isChecked,
-      sub ?? x,
+      sub ?? widget.task.subList.keys.lastOrNull,
+      widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
       task: widget.task,
     );
   }
@@ -134,7 +146,7 @@ class __DialogState extends State<_Dialog> {
                   () {
                     resetOtherCompletions();
                     subTasks[sub.key] = value!;
-                    // updateTask(sub: value);
+                    updateTask(newChecked: value);
                     widget.verifyDayComplete();
                   },
                 );

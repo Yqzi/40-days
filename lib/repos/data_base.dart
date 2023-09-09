@@ -88,8 +88,8 @@ class CustomDatabase {
     final subQuery =
         await (await database).rawQuery('''SELECT * FROM $tableName2''');
 
-    tasksQuery.forEach((element) {
-      print(element['isChecked']);
+    subQuery.forEach((element) {
+      print('${element['parentName']} ${element['isSubChecked']}');
     });
 
     List<Task> tasks = tasksQuery.map((e) => Task.fromJson(e)).toList();
@@ -106,18 +106,27 @@ class CustomDatabase {
     return tasks;
   }
 
-  Future<void> updateTask(
-      String newName, bool ifSelectOne, bool newChecked, String newSubName,
+  Future<void> updateTask(String newName, bool ifSelectOne, bool newChecked,
+      String? newSubName, bool? newSubChecked,
       {required Task task}) async {
     int check = newChecked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
+    int subCheck = newSubChecked == true ? 1 : 0;
+    print('updating task isChecked $check');
     await (await database).rawQuery(
         '''UPDATE $tableName1 SET name = "$newName", ifSelectOne = "$one", isChecked = "$check" WHERE name = "${task.name}" ''');
 
     // REMINDER ADD INSTEAD OF UPDATE TO MAKE MORE SUB ITEMS.
-    if (!task.subList.containsKey(newSubName)) {
+    if (!task.subList.containsKey(newSubName) && newSubName != null) {
+      print('sub name is $newSubName');
       createSubTask(
           parentName: newName, subName: newSubName, subChecked: false);
+    }
+    newSubName = newSubName ?? task.subList.keys.lastOrNull;
+
+    if (newSubChecked != null) {
+      await (await database)
+          .rawQuery('''UPDATE $tableName2 SET isSubChecked = "$subCheck"''');
     }
   }
 }
