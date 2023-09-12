@@ -148,11 +148,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     : widget.taskDetails!(title, subNames, ifSelectOne);
                 if (widget.task != null) {
                   widget.verifyDayComplete!();
-                  updateTask(
-                    title: title,
-                    checked: false,
-                    one: ifSelectOne,
-                  );
+                  updateTask(title: title, checked: false, one: ifSelectOne);
                 }
                 ;
                 Navigator.of(context).pop();
