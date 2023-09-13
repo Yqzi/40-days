@@ -128,46 +128,6 @@ class _HomeState extends State<Home> {
       setState(() {});
       return;
     }
-
-    // if (isComplete) {
-    //   print('4');
-    //   if (index != 0) {
-    //     if (boxes[index - 1].completionDate != null &&
-    //         !boxes[index - 1].isToday) {
-    //       boxes[index] = Box(
-    //         completionDate: DateTime.now(),
-    //         tasks: tasks.length,
-    //         lines: tasks.length,
-    //       );
-    //     } else if (boxes[index - 1].isToday) {
-    //       boxes[index - 1].lines = tasks.length;
-    //       boxes[index - 1].tasks = tasks.length;
-    //     } else {
-    //       return;
-    //     }
-    //   } else {
-    //     boxes[index] = Box(
-    //       completionDate: DateTime.now(),
-    //       tasks: tasks.length,
-    //       lines: tasks.length,
-    //     );
-    //   }
-    //   _prefs.saveDays(index.toString(), boxes[index].completionDate!);
-    //   setState(() {});
-    //   return;
-    // }
-    // // if not complete
-    // // reset latest checkbox
-    // else if (index != 0 && boxes[index - 1].isToday) {
-    //   boxes[index - 1] = Box();
-    //   _prefs.removeDays((index - 1).toString());
-    // } else {
-    //   boxes[index] = Box();
-    //   _prefs.removeDays(index.toString());
-    // }
-
-    // setState(() {});
-    // return;
   }
 
   void resetTaskCompletion() {
@@ -198,6 +158,7 @@ class _HomeState extends State<Home> {
     setTasks();
     addDay();
     resetTaskCompletion();
+    setState(() {});
   }
 
   @override
