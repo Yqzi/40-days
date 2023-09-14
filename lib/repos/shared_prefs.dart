@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Preferences {
   final Future<SharedPreferences> _preferences =
       SharedPreferences.getInstance();
+  final String y = 'yesterday';
 
   void saveDays({
     required String index,
@@ -19,6 +20,16 @@ class Preferences {
       lines.toString(),
       tasks.toString()
     ]);
+  }
+
+  void saveYesterday(int yesterday) async {
+    var prefs = await _preferences;
+    prefs.setInt(y, yesterday);
+  }
+
+  Future<int?> loadYesterday() async {
+    var prefs = await _preferences;
+    return prefs.getInt(y);
   }
 
   Future<Map?> loadDays(String index) async {

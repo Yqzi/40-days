@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
   final CustomDatabase customDatabase = CustomDatabase();
   List<Task> tasks = [];
   List<Box> boxes = [];
-  DateTime yesterday = DateTime.now();
+  late int yesterday;
   bool edit = false;
 
   void addTask(String name, Map<String, bool>? subList, bool ifSelectOne) {
@@ -132,10 +132,13 @@ class _HomeState extends State<Home> {
 
   void resetTaskCompletion() {
     // reset task check boxes
-    if (yesterday.day != DateTime.now().day) {
-      for (var task in tasks) {
+    if (yesterday != DateTime.now().day) {
+      print('working');
+      for (Task task in tasks) {
+        print('sublist = ${task.subList}');
         if (task.subList.isEmpty) {
           task.isChecked = false;
+          print('checked = ${task.isChecked}');
         } else {
           for (var key in task.subList.keys) {
             task.subList[key] = false;
@@ -143,13 +146,23 @@ class _HomeState extends State<Home> {
           task.isChecked = false;
         }
       }
-      yesterday = DateTime.now();
+      yesterday = DateTime.now().day;
+      _prefs.saveYesterday(yesterday);
     }
   }
 
   void setTasks() async {
     tasks = await customDatabase.fetchAll();
+    setYesterday();
     setState(() {});
+  }
+
+  void setYesterday() async {
+    yesterday = await _prefs.loadYesterday() ?? DateTime.now().day;
+    _prefs.saveYesterday(yesterday);
+    print(yesterday);
+    print(DateTime.now().day);
+    resetTaskCompletion();
   }
 
   @override
@@ -157,7 +170,6 @@ class _HomeState extends State<Home> {
     super.initState();
     setTasks();
     addDay();
-    resetTaskCompletion();
     setState(() {});
   }
 
