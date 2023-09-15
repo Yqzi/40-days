@@ -160,8 +160,6 @@ class _HomeState extends State<Home> {
   void setYesterday() async {
     yesterday = await _prefs.loadYesterday() ?? DateTime.now().day;
     _prefs.saveYesterday(yesterday);
-    print(yesterday);
-    print(DateTime.now().day);
     resetTaskCompletion();
   }
 
