@@ -133,12 +133,9 @@ class _HomeState extends State<Home> {
   void resetTaskCompletion() {
     // reset task check boxes
     if (yesterday != DateTime.now().day) {
-      print('working');
       for (Task task in tasks) {
-        print('sublist = ${task.subList}');
         if (task.subList.isEmpty) {
           task.isChecked = false;
-          print('checked = ${task.isChecked}');
         } else {
           for (var key in task.subList.keys) {
             task.subList[key] = false;
