@@ -31,7 +31,6 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
 
   void updateTask(
       {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
-    print('ran func');
     customDatabase.updateTask(
       name ?? widget.task.name,
       ifSelectOne ?? widget.task.ifSelectOne,
