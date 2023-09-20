@@ -27,7 +27,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
   // void dispose() {
   //   widget.task.subList = subTasks;
   //   super.dispose();
-  // }
+  //
 
   void updateTask(
       {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
