@@ -58,13 +58,14 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
       widget.task!.ifSelectOne = one;
     }
     customDatabase.updateTask(
-        widget.task!.name,
-        widget.task!.ifSelectOne,
-        widget.task!.isChecked,
-        widget.task!.subList.keys.lastOrNull,
-        widget.task!.subList[sub ?? widget.task!.subList.keys.lastOrNull],
-        sub ?? widget.task!.subList.keys.lastOrNull,
-        task: widget.task!);
+      widget.task!.name,
+      widget.task!.ifSelectOne,
+      widget.task!.isChecked,
+      widget.task!.subList.keys.lastOrNull,
+      widget.task!.subList[sub ?? widget.task!.subList.keys.lastOrNull],
+      sub ?? widget.task!.subList.keys.lastOrNull,
+      task: widget.task!,
+    );
   }
 
   @override
