@@ -41,10 +41,7 @@ class _HomeState extends State<Home> {
     if (subList!.isNotEmpty) {
       for (var sName in subList.keys) {
         customDatabase.createSubTask(
-          parentName: name,
-          subName: sName,
-          subChecked: false,
-        );
+            parentName: name, subName: sName, subChecked: false);
       }
     }
 
