@@ -76,8 +76,14 @@ class _HomeState extends State<Home> {
     int lines = tasks.where((e) => e.isChecked == true).length;
     var y = 0;
 
+    print(index);
+
     if (lines == tasks.length && lines > 0) {
-      var x = index > 0 ? index - 1 : index;
+      var x = index > 0
+          ? !boxes[index - 1].isToday
+              ? index
+              : index - 1
+          : index;
       boxes[x] = Box(
         completionDate: DateTime.now(),
         isComplete: true,

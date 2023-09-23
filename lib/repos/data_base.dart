@@ -103,8 +103,8 @@ class CustomDatabase {
   }
 
   Future<void> updateTask(String newName, bool ifSelectOne, bool newChecked,
-      String? newSubName, bool? newSubChecked,
-      {required Task task}) async {
+      String? newSubName, bool? newSubChecked, String? subName,
+      {required Task task, bool reset = false}) async {
     int check = newChecked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
     int subCheck = newSubChecked == true ? 1 : 0;
@@ -116,11 +116,15 @@ class CustomDatabase {
       createSubTask(
           parentName: newName, subName: newSubName, subChecked: false);
     }
-    newSubName = newSubName ?? task.subList.keys.lastOrNull;
+
+    if (reset == true) {
+      await (await database).rawQuery(
+          '''UPDATE $tableName2 SET isSubChecked = "0" WHERE parentName = "${task.name}"''');
+    }
 
     if (newSubChecked != null) {
-      await (await database)
-          .rawQuery('''UPDATE $tableName2 SET isSubChecked = "$subCheck"''');
+      await (await database).rawQuery(
+          '''UPDATE $tableName2 SET isSubChecked = "$subCheck" WHERE subName = "$subName"''');
     }
   }
 }

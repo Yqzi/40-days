@@ -29,14 +29,19 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
   //   super.dispose();
   // }
 
-  void updateTask(
-      {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
+  void updateTask({
+    String? name,
+    String? sub,
+    bool? newChecked,
+    bool? ifSelectOne,
+  }) {
     customDatabase.updateTask(
       name ?? widget.task.name,
       ifSelectOne ?? widget.task.ifSelectOne,
       newChecked ?? widget.task.isChecked,
       sub ?? widget.task.subList.keys.lastOrNull,
       widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
+      sub ?? widget.task.subList.keys.lastOrNull,
       task: widget.task,
     );
   }
@@ -110,14 +115,21 @@ class __DialogState extends State<_Dialog> {
     subTasks = widget.task.subList;
   }
 
-  void updateTask(
-      {String? name, String? sub, bool? newChecked, bool? ifSelectOne}) {
+  void updateTask({
+    String? name,
+    String? sub,
+    bool? newChecked,
+    bool? ifSelectOne,
+    bool? reset,
+  }) {
     customDatabase.updateTask(
       name ?? widget.task.name,
       ifSelectOne ?? widget.task.ifSelectOne,
       newChecked ?? widget.task.isChecked,
       sub ?? widget.task.subList.keys.lastOrNull,
       widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
+      sub ?? widget.task.subList.keys.lastOrNull,
+      reset: reset ?? false,
       task: widget.task,
     );
   }
@@ -126,6 +138,7 @@ class __DialogState extends State<_Dialog> {
     Task curr = widget.task;
     if (curr.ifSelectOne) {
       subTasks.reset();
+      updateTask(reset: true);
     }
   }
 
@@ -145,7 +158,7 @@ class __DialogState extends State<_Dialog> {
                   () {
                     resetOtherCompletions();
                     subTasks[sub.key] = value!;
-                    updateTask(newChecked: value);
+                    updateTask(sub: sub.key);
                     widget.verifyDayComplete();
                   },
                 );

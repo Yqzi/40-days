@@ -63,6 +63,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
       widget.task!.isChecked,
       widget.task!.subList.keys.lastOrNull,
       widget.task!.subList[sub ?? widget.task!.subList.keys.lastOrNull],
+      sub ?? widget.task!.subList.keys.lastOrNull,
       task: widget.task!,
     );
   }
