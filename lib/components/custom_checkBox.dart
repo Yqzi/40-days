@@ -8,6 +8,7 @@ class CustomCheckBox extends StatefulWidget {
   final void Function() verifyDayComplete;
   final void Function(String, Map<String, bool>?, bool)? taskDetails;
   final bool edit;
+  final List<Task> allTasks;
 
   const CustomCheckBox({
     super.key,
@@ -15,6 +16,7 @@ class CustomCheckBox extends StatefulWidget {
     required this.task,
     required this.verifyDayComplete,
     required this.taskDetails,
+    required this.allTasks,
   });
 
   @override
@@ -39,7 +41,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
       name ?? widget.task.name,
       ifSelectOne ?? widget.task.ifSelectOne,
       newChecked ?? widget.task.isChecked,
-      sub ?? widget.task.subList.keys.lastOrNull,
+      sub,
       widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
       sub ?? widget.task.subList.keys.lastOrNull,
       task: widget.task,
@@ -61,6 +63,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                           task: widget.task,
                           taskDetails: widget.taskDetails,
                           verifyDayComplete: widget.verifyDayComplete,
+                          allTasks: widget.allTasks,
                         )
                       : _Dialog(
                           task: widget.task,
@@ -78,6 +81,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                             task: widget.task,
                             taskDetails: widget.taskDetails,
                             verifyDayComplete: widget.verifyDayComplete,
+                            allTasks: widget.allTasks,
                           );
                         }),
                   )
@@ -126,7 +130,7 @@ class __DialogState extends State<_Dialog> {
       name ?? widget.task.name,
       ifSelectOne ?? widget.task.ifSelectOne,
       newChecked ?? widget.task.isChecked,
-      sub ?? widget.task.subList.keys.lastOrNull,
+      sub,
       widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
       sub ?? widget.task.subList.keys.lastOrNull,
       reset: reset ?? false,

@@ -104,7 +104,7 @@ class CustomDatabase {
 
   Future<void> updateTask(String newName, bool ifSelectOne, bool newChecked,
       String? newSubName, bool? newSubChecked, String? subName,
-      {required Task task, bool reset = false}) async {
+      {required Task task, bool reset = false, bool addNewSub = false}) async {
     int check = newChecked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
     int subCheck = newSubChecked == true ? 1 : 0;
@@ -112,9 +112,10 @@ class CustomDatabase {
         '''UPDATE $tableName1 SET name = "$newName", ifSelectOne = "$one", isChecked = "$check" WHERE name = "${task.name}" ''');
 
     // REMINDER ADD INSTEAD OF UPDATE TO MAKE MORE SUB ITEMS.
-    if (!task.subList.containsKey(newSubName) && newSubName != null) {
+
+    if (addNewSub == true) {
       createSubTask(
-          parentName: newName, subName: newSubName, subChecked: false);
+          parentName: newName, subName: newSubName!, subChecked: false);
     }
 
     if (reset == true) {

@@ -7,12 +7,14 @@ class TaskDetailsDialog extends StatefulWidget {
   final void Function(String, Map<String, bool>?, bool)? taskDetails;
   final void Function()? verifyDayComplete;
   final Task? task;
+  final List<Task> allTasks;
 
   const TaskDetailsDialog({
     super.key,
     this.taskDetails,
     this.task,
     this.verifyDayComplete,
+    required this.allTasks,
   });
 
   @override
@@ -44,28 +46,26 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
     super.initState();
   }
 
-  void updateTask({String? title, bool? checked, String? sub, bool? one}) {
+  void updateTask(
+      {String? title, bool? checked, String? sub, bool? one, bool? addNewSub}) {
     if (title != null) {
       widget.task!.name = title;
     }
     if (checked != null) {
       widget.task!.isChecked = checked;
     }
-    if (sub != null) {
-      widget.task!.addToSublist(sub);
-    }
     if (one != null) {
       widget.task!.ifSelectOne = one;
     }
     customDatabase.updateTask(
-      widget.task!.name,
-      widget.task!.ifSelectOne,
-      widget.task!.isChecked,
-      widget.task!.subList.keys.lastOrNull,
-      widget.task!.subList[sub ?? widget.task!.subList.keys.lastOrNull],
-      sub ?? widget.task!.subList.keys.lastOrNull,
-      task: widget.task!,
-    );
+        widget.task!.name,
+        widget.task!.ifSelectOne,
+        widget.task!.isChecked,
+        sub,
+        widget.task!.subList[sub ?? widget.task!.subList.keys.lastOrNull],
+        sub ?? widget.task!.subList.keys.lastOrNull,
+        task: widget.task!,
+        addNewSub: addNewSub ?? false);
   }
 
   @override
@@ -83,7 +83,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (ifSubList == false || taskNameController.text == '')
-              TextField(
+              TextFormField(
                 controller: taskNameController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -91,7 +91,10 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   ),
                   labelText: "Task Name: ",
                 ),
-                onSubmitted: (value) {
+                validator: (text) {
+                  widget.allTasks.every((e) => e.name != text);
+                },
+                onFieldSubmitted: (value) {
                   setState(() {
                     title = value;
                     if (widget.task != null) {
@@ -130,12 +133,12 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                 ),
                 onSubmitted: (value) => setState(
                   () {
+                    if (widget.task != null) {
+                      updateTask(checked: false, sub: value, addNewSub: true);
+                    }
                     subNames[value] = false;
                     subNamesController.clear();
                     myFocusNode.requestFocus();
-                    if (widget.task != null) {
-                      updateTask(checked: false, sub: value);
-                    }
                   },
                 ),
               ),

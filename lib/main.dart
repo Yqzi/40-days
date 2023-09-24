@@ -222,6 +222,7 @@ class _HomeState extends State<Home> {
                             context: context,
                             builder: (BuildContext context) {
                               return TaskDetailsDialog(
+                                allTasks: tasks,
                                 taskDetails: addTask,
                               );
                             });
@@ -249,6 +250,7 @@ class _HomeState extends State<Home> {
                             taskDetails: addTask,
                             edit: edit,
                             task: tasks[index],
+                            allTasks: tasks,
                             verifyDayComplete: verifyDayComplete,
                           ),
                         ],
