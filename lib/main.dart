@@ -13,7 +13,11 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
-    const MaterialApp(home: Home()),
+    MaterialApp(
+      home: const Home(),
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      themeMode: ThemeMode.dark,
+    ),
   );
 }
 
@@ -189,9 +193,9 @@ class _HomeState extends State<Home> {
         children: [
           Container(
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 3)),
+                border: Border.all(color: Colors.transparent, width: 5)),
             height:
-                ((MediaQuery.of(context).size.width * 5 - 14 * 5) / 8) + 8 + 3,
+                ((MediaQuery.of(context).size.width * 5 - 14 * 5) / 8) + 8 + 10,
             child: Center(
               child: GridView(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -206,7 +210,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          SizedBox(
+          Expanded(
             child: Column(
               children: [
                 Title(
@@ -234,29 +238,30 @@ class _HomeState extends State<Home> {
                         edit = !edit;
                         setState(() {});
                       },
-                      icon: const Icon(FontAwesomeIcons.penToSquare),
+                      icon: Icon(
+                        FontAwesomeIcons.penToSquare,
+                        color: (edit) ? const Color(0xFFFFE082) : Colors.white,
+                      ),
                     )
                   ],
                 ),
-                ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: tasks.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                      child: Column(
-                        children: <Widget>[
-                          CustomCheckBox(
-                            taskDetails: addTask,
-                            edit: edit,
-                            task: tasks[index],
-                            allTasks: tasks,
-                            verifyDayComplete: verifyDayComplete,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                Expanded(
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: tasks.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Card(
+                        child: CustomCheckBox(
+                          taskDetails: addTask,
+                          edit: edit,
+                          task: tasks[index],
+                          allTasks: tasks,
+                          verifyDayComplete: verifyDayComplete,
+                        ),
+                      );
+                    },
+                  ),
                 )
               ],
             ),

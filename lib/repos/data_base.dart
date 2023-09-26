@@ -102,16 +102,26 @@ class CustomDatabase {
     return tasks;
   }
 
-  Future<void> updateTask(String newName, bool ifSelectOne, bool newChecked,
-      String? newSubName, bool? newSubChecked, String? subName,
-      {required Task task, bool reset = false, bool addNewSub = false}) async {
+  Future<void> updateTask(
+    String newName,
+    bool ifSelectOne,
+    bool newChecked,
+    String? newSubName,
+    bool? newSubChecked,
+    String? subName, {
+    required Task task,
+    bool reset = false,
+    bool addNewSub = false,
+    String? prevName,
+  }) async {
     int check = newChecked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
     int subCheck = newSubChecked == true ? 1 : 0;
     await (await database).rawQuery(
-        '''UPDATE $tableName1 SET name = "$newName", ifSelectOne = "$one", isChecked = "$check" WHERE name = "${task.name}" ''');
+        '''UPDATE $tableName1 SET name = "$newName", ifSelectOne = "$one", isChecked = "$check" WHERE name = "$prevName" ''');
 
-    // REMINDER ADD INSTEAD OF UPDATE TO MAKE MORE SUB ITEMS.
+    await (await database).rawQuery(
+        '''UPDATE $tableName2 SET parentName = "$newName" WHERE parentName = "$prevName"''');
 
     if (addNewSub == true) {
       createSubTask(
