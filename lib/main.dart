@@ -251,15 +251,35 @@ class _HomeState extends State<Home> {
                     shrinkWrap: true,
                     itemCount: tasks.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                        child: CustomCheckBox(
-                          taskDetails: addTask,
-                          edit: edit,
-                          task: tasks[index],
-                          allTasks: tasks,
-                          verifyDayComplete: verifyDayComplete,
-                        ),
-                      );
+                      return edit == true
+                          ? Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    FontAwesomeIcons.circleMinus,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                ),
+                                Card(
+                                    child: CustomCheckBox(
+                                  taskDetails: addTask,
+                                  edit: edit,
+                                  task: tasks[index],
+                                  allTasks: tasks,
+                                  verifyDayComplete: verifyDayComplete,
+                                ))
+                              ],
+                            )
+                          : Card(
+                              child: CustomCheckBox(
+                              taskDetails: addTask,
+                              edit: edit,
+                              task: tasks[index],
+                              allTasks: tasks,
+                              verifyDayComplete: verifyDayComplete,
+                            ));
                     },
                   ),
                 )

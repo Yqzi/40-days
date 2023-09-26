@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/components/task_details_dialog.dart';
 import 'package:forty_days/models/task.dart';
 import 'package:forty_days/repos/data_base.dart';
@@ -50,46 +51,52 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
 
   @override
   Widget build(BuildContext context) {
-    return CheckboxListTile(
-      value: widget.task.isChecked,
-      title: Text(widget.task.name),
-      onChanged: (value) {
-        widget.task.subList.isNotEmpty
-            ? showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return widget.edit == true
-                      ? TaskDetailsDialog(
-                          task: widget.task,
-                          taskDetails: widget.taskDetails,
-                          verifyDayComplete: widget.verifyDayComplete,
-                          allTasks: widget.allTasks,
-                        )
-                      : _Dialog(
+    return widget.edit == true
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: MaterialButton(
+                  onPressed: () {
+                    TaskDetailsDialog(
+                      task: widget.task,
+                      taskDetails: widget.taskDetails,
+                      verifyDayComplete: widget.verifyDayComplete,
+                      allTasks: widget.allTasks,
+                    );
+                    widget.verifyDayComplete();
+                  },
+                  child: Text(widget.task.name),
+                ),
+              ),
+              const Icon(
+                FontAwesomeIcons.greaterThan,
+                color: Color.fromARGB(255, 100, 97, 97),
+                size: 10,
+              )
+            ],
+          )
+        : CheckboxListTile(
+            value: widget.task.isChecked,
+            title: Text(widget.task.name),
+            onChanged: (value) {
+              widget.task.subList.isNotEmpty
+                  ? showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return _Dialog(
                           task: widget.task,
                           verifyDayComplete: widget.verifyDayComplete,
                           taskDetails: widget.taskDetails,
                         );
-                },
-              )
-            : widget.edit == true
-                ? (
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return TaskDetailsDialog(
-                            task: widget.task,
-                            taskDetails: widget.taskDetails,
-                            verifyDayComplete: widget.verifyDayComplete,
-                            allTasks: widget.allTasks,
-                          );
-                        }),
-                  )
-                : (widget.task.isChecked = value!,);
-        if (!widget.edit) updateTask(newChecked: value);
-        widget.verifyDayComplete();
-      },
-    );
+                      },
+                    )
+                  : widget.task.isChecked = value!;
+              updateTask(newChecked: value);
+              widget.verifyDayComplete();
+            },
+          );
   }
 }
 

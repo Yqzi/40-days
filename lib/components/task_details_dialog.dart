@@ -22,7 +22,8 @@ class TaskDetailsDialog extends StatefulWidget {
 }
 
 class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
-  final _formKey = GlobalKey<FormState>();
+  final _taskFormKey = GlobalKey<FormState>();
+  final _subFormKey = GlobalKey<FormState>();
   CustomDatabase customDatabase = CustomDatabase();
   TextEditingController taskNameController = TextEditingController();
   TextEditingController subNamesController = TextEditingController();
@@ -73,12 +74,27 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
     );
   }
 
+  void updateName() {
+    if (taskNameController.text.isNotEmpty || taskNameController.text != '') {
+      if (_taskFormKey.currentState!.validate()) {
+        title = taskNameController.text;
+        if (widget.task != null) {
+          updateTask(title: title);
+        }
+        setState(() {});
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
+      key: _taskFormKey,
       child: GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+          updateName();
+        },
         child: AlertDialog(
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
@@ -92,6 +108,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
               if (ifSubList == false || taskNameController.text == '')
                 TextFormField(
                   controller: taskNameController,
+                  focusNode: myFocusNode,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -110,7 +127,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     return null;
                   },
                   onFieldSubmitted: (value) {
-                    if (_formKey.currentState!.validate()) {
+                    if (_taskFormKey.currentState!.validate()) {
                       setState(() {
                         title = value;
                         if (widget.task != null) {
@@ -127,6 +144,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     onPressed: () {
                       setState(() {
                         ifSubList = !ifSubList;
+                        updateName();
                       });
                     },
                     child: const Text("ADD SUBLIST +"),
@@ -134,28 +152,39 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   TextButton(
                     onPressed: () {
                       ifSelectOne = !ifSelectOne;
+                      updateName();
                     },
                     child: const Text('Select One?'),
                   )
                 ],
               ),
               if (ifSubList == true)
-                TextField(
+                TextFormField(
                   controller: subNamesController,
                   focusNode: myFocusNode,
+                  key: _subFormKey,
+                  validator: (text) {
+                    if (text == null || text.isEmpty) {
+                      return "Please enter some text or task will be created without sublist";
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30)),
                     labelText: "add sub task: ",
                   ),
-                  onSubmitted: (value) => setState(
+                  onFieldSubmitted: (value) => setState(
                     () {
-                      if (widget.task != null) {
-                        updateTask(checked: false, sub: value, addNewSub: true);
+                      if (_subFormKey.currentState!.validate()) {
+                        if (widget.task != null) {
+                          updateTask(
+                              checked: false, sub: value, addNewSub: true);
+                        }
+                        subNames[value] = false;
+                        subNamesController.clear();
+                        myFocusNode.requestFocus();
                       }
-                      subNames[value] = false;
-                      subNamesController.clear();
-                      myFocusNode.requestFocus();
                     },
                   ),
                 ),
@@ -164,11 +193,10 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   Text(subNames.keys.elementAt(i)),
               TextButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    widget.task != null
-                        ? ()
-                        : widget.taskDetails!(title, subNames, ifSelectOne);
-                    if (widget.task != null) {
+                  if (_taskFormKey.currentState!.validate()) {
+                    if (widget.task != null &&
+                        !subNames.containsKey(subNamesController.text)) {
+                      updateTask(sub: subNamesController.text, addNewSub: true);
                       widget.verifyDayComplete!();
                       title = taskNameController.text;
                       updateTask(
@@ -176,7 +204,12 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                         checked: false,
                         one: ifSelectOne,
                       );
+                      setState(() {});
                     }
+                    if (_subFormKey.currentState!.validate()) {
+                      subNames[subNamesController.text] = false;
+                    }
+                    widget.taskDetails!(title, subNames, ifSelectOne);
                     Navigator.of(context).pop();
                   }
                 },
