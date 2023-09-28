@@ -110,9 +110,9 @@ class CustomDatabase {
     bool? newSubChecked,
     String? subName, {
     required Task task,
+    required String prevName,
     bool reset = false,
     bool addNewSub = false,
-    String? prevName,
   }) async {
     int check = newChecked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;

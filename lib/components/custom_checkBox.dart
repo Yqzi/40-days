@@ -37,16 +37,17 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
     String? sub,
     bool? newChecked,
     bool? ifSelectOne,
+    String? prevName,
   }) {
     customDatabase.updateTask(
-      name ?? widget.task.name,
-      ifSelectOne ?? widget.task.ifSelectOne,
-      newChecked ?? widget.task.isChecked,
-      sub,
-      widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
-      sub ?? widget.task.subList.keys.lastOrNull,
-      task: widget.task,
-    );
+        name ?? widget.task.name,
+        ifSelectOne ?? widget.task.ifSelectOne,
+        newChecked ?? widget.task.isChecked,
+        sub,
+        widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
+        sub ?? widget.task.subList.keys.lastOrNull,
+        task: widget.task,
+        prevName: prevName ?? widget.task.name);
   }
 
   @override
@@ -56,24 +57,31 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery.of(context).size.width - 90,
                 child: MaterialButton(
                   onPressed: () {
-                    TaskDetailsDialog(
-                      task: widget.task,
-                      taskDetails: widget.taskDetails,
-                      verifyDayComplete: widget.verifyDayComplete,
-                      allTasks: widget.allTasks,
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return TaskDetailsDialog(
+                          task: widget.task,
+                          taskDetails: widget.taskDetails,
+                          verifyDayComplete: widget.verifyDayComplete,
+                          allTasks: widget.allTasks,
+                        );
+                      },
                     );
-                    widget.verifyDayComplete();
                   },
                   child: Text(widget.task.name),
                 ),
               ),
-              const Icon(
-                FontAwesomeIcons.greaterThan,
-                color: Color.fromARGB(255, 100, 97, 97),
-                size: 10,
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(
+                  FontAwesomeIcons.greaterThan,
+                  color: Color.fromARGB(255, 100, 97, 97),
+                  size: 10,
+                ),
               )
             ],
           )
@@ -93,7 +101,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                       },
                     )
                   : widget.task.isChecked = value!;
-              updateTask(newChecked: value);
+              if (widget.task.subList.isEmpty) updateTask(newChecked: value!);
               widget.verifyDayComplete();
             },
           );
@@ -132,6 +140,7 @@ class __DialogState extends State<_Dialog> {
     bool? newChecked,
     bool? ifSelectOne,
     bool? reset,
+    String? prevName,
   }) {
     customDatabase.updateTask(
       name ?? widget.task.name,
@@ -142,6 +151,7 @@ class __DialogState extends State<_Dialog> {
       sub ?? widget.task.subList.keys.lastOrNull,
       reset: reset ?? false,
       task: widget.task,
+      prevName: prevName ?? widget.task.name,
     );
   }
 

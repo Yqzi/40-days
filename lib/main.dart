@@ -262,14 +262,17 @@ class _HomeState extends State<Home> {
                                     size: 20,
                                   ),
                                 ),
-                                Card(
-                                    child: CustomCheckBox(
-                                  taskDetails: addTask,
-                                  edit: edit,
-                                  task: tasks[index],
-                                  allTasks: tasks,
-                                  verifyDayComplete: verifyDayComplete,
-                                ))
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: Card(
+                                      child: CustomCheckBox(
+                                    taskDetails: addTask,
+                                    edit: edit,
+                                    task: tasks[index],
+                                    allTasks: tasks,
+                                    verifyDayComplete: verifyDayComplete,
+                                  )),
+                                )
                               ],
                             )
                           : Card(
