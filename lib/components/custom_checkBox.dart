@@ -57,23 +57,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width - 90,
-                child: MaterialButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return TaskDetailsDialog(
-                          task: widget.task,
-                          taskDetails: widget.taskDetails,
-                          verifyDayComplete: widget.verifyDayComplete,
-                          allTasks: widget.allTasks,
-                        );
-                      },
-                    );
-                  },
-                  child: Text(widget.task.name),
-                ),
+                child: Text(widget.task.name),
               ),
               const Padding(
                 padding: EdgeInsets.all(8.0),

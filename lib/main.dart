@@ -80,8 +80,6 @@ class _HomeState extends State<Home> {
     int lines = tasks.where((e) => e.isChecked == true).length;
     var y = 0;
 
-    print(index);
-
     if (lines == tasks.length && lines > 0) {
       var x = index > 0
           ? !boxes[index - 1].isToday
@@ -254,25 +252,48 @@ class _HomeState extends State<Home> {
                       return edit == true
                           ? Row(
                               children: [
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    FontAwesomeIcons.circleMinus,
-                                    color: Colors.red,
-                                    size: 20,
+                                // IconButton(
+                                //   onPressed: () {},
+                                //   icon: const Icon(
+                                //     FontAwesomeIcons.circleMinus,
+                                //     color: Colors.red,
+                                //     size: 20,
+                                //   ),
+                                // ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: MaterialButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return TaskDetailsDialog(
+                                              task: tasks[index],
+                                              taskDetails: addTask,
+                                              verifyDayComplete:
+                                                  verifyDayComplete,
+                                              allTasks: tasks,
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: Card(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: CustomCheckBox(
+                                            taskDetails: addTask,
+                                            edit: edit,
+                                            task: tasks[index],
+                                            allTasks: tasks,
+                                            verifyDayComplete:
+                                                verifyDayComplete,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: Card(
-                                      child: CustomCheckBox(
-                                    taskDetails: addTask,
-                                    edit: edit,
-                                    task: tasks[index],
-                                    allTasks: tasks,
-                                    verifyDayComplete: verifyDayComplete,
-                                  )),
-                                )
                               ],
                             )
                           : Card(
