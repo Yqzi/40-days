@@ -245,6 +245,7 @@ class _HomeState extends State<Home> {
                 ),
                 Expanded(
                   child: ListView.builder(
+                    padding: EdgeInsets.zero,
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     itemCount: tasks.length,
@@ -252,18 +253,19 @@ class _HomeState extends State<Home> {
                       return edit == true
                           ? Row(
                               children: [
-                                // IconButton(
-                                //   onPressed: () {},
-                                //   icon: const Icon(
-                                //     FontAwesomeIcons.circleMinus,
-                                //     color: Colors.red,
-                                //     size: 20,
-                                //   ),
-                                // ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    FontAwesomeIcons.circleMinus,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.only(right: 8),
                                     child: MaterialButton(
+                                      padding: EdgeInsets.zero,
                                       onPressed: () {
                                         showDialog(
                                           context: context,
