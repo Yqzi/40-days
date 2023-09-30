@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:forty_days/components/task_details_dialog.dart';
 import 'package:forty_days/models/task.dart';
 import 'package:forty_days/repos/data_base.dart';
 
 class CustomCheckBox extends StatefulWidget {
   final Task task;
   final void Function() verifyDayComplete;
-  final void Function(String, Map<String, bool>?, bool)? taskDetails;
+  final void Function(String, Map<String, bool>?, bool, int?)? taskDetails;
   final bool edit;
   final List<Task> allTasks;
 
@@ -80,7 +79,6 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
                         return _Dialog(
                           task: widget.task,
                           verifyDayComplete: widget.verifyDayComplete,
-                          taskDetails: widget.taskDetails,
                         );
                       },
                     )
@@ -95,13 +93,11 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
 class _Dialog extends StatefulWidget {
   final Task task;
   final void Function() verifyDayComplete;
-  final void Function(String, Map<String, bool>?, bool)? taskDetails;
 
   const _Dialog({
     super.key,
     required this.task,
     required this.verifyDayComplete,
-    this.taskDetails,
   });
 
   @override

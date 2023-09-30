@@ -4,9 +4,10 @@ import '../models/task.dart';
 import '../repos/data_base.dart';
 
 class TaskDetailsDialog extends StatefulWidget {
-  final void Function(String, Map<String, bool>?, bool)? taskDetails;
+  final void Function(String, Map<String, bool>?, bool, int?)? taskDetails;
   final void Function()? verifyDayComplete;
   final Task? task;
+  final int? index;
   final List<Task> allTasks;
 
   const TaskDetailsDialog({
@@ -15,6 +16,7 @@ class TaskDetailsDialog extends StatefulWidget {
     this.task,
     this.verifyDayComplete,
     required this.allTasks,
+    this.index,
   });
 
   @override
@@ -188,7 +190,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     },
                   ),
                 ),
-              if (ifSubList == true)
+              if (ifSubList)
                 for (int i = 0; i < subNames.length; i++)
                   Text(subNames.keys.elementAt(i)),
               TextButton(
@@ -206,10 +208,15 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                       );
                       setState(() {});
                     }
-                    if (_subFormKey.currentState!.validate()) {
+                    if (ifSubList && _subFormKey.currentState!.validate()) {
                       subNames[subNamesController.text] = false;
                     }
-                    widget.taskDetails!(title, subNames, ifSelectOne);
+                    widget.taskDetails!(
+                      title,
+                      subNames,
+                      ifSelectOne,
+                      widget.index,
+                    );
                     Navigator.of(context).pop();
                   }
                 },

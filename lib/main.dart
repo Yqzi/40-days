@@ -36,19 +36,26 @@ class _HomeState extends State<Home> {
   late int yesterday;
   bool edit = false;
 
-  void addTask(String name, Map<String, bool>? subList, bool ifSelectOne) {
-    tasks.add(
-      Task(name: name, subList: subList ?? {}, ifSelectOne: ifSelectOne),
-    );
-    customDatabase.createTask(
-        name: name, checked: false, ifSelectOne: ifSelectOne);
-    if (subList!.isNotEmpty) {
-      for (var sName in subList.keys) {
-        customDatabase.createSubTask(
-          parentName: name,
-          subName: sName,
-          subChecked: false,
-        );
+  void addTask(
+      String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
+    if (index == null) {
+      tasks.add(
+        Task(name: name, subList: subList ?? {}, ifSelectOne: ifSelectOne),
+      );
+
+      customDatabase.createTask(
+        name: name,
+        checked: false,
+        ifSelectOne: ifSelectOne,
+      );
+      if (subList!.isNotEmpty) {
+        for (var sName in subList.keys) {
+          customDatabase.createSubTask(
+            parentName: name,
+            subName: sName,
+            subChecked: false,
+          );
+        }
       }
     }
 
@@ -276,6 +283,7 @@ class _HomeState extends State<Home> {
                                               verifyDayComplete:
                                                   verifyDayComplete,
                                               allTasks: tasks,
+                                              index: index,
                                             );
                                           },
                                         );
