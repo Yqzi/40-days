@@ -178,7 +178,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   ),
                   onFieldSubmitted: (value) => setState(
                     () {
-                      if (_subFormKey.currentState!.validate()) {
+                      if (_subFormKey.currentState != null &&
+                          _subFormKey.currentState!.validate()) {
                         if (widget.task != null) {
                           updateTask(
                               checked: false, sub: value, addNewSub: true);
@@ -208,7 +209,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                       );
                       setState(() {});
                     }
-                    if (ifSubList && _subFormKey.currentState!.validate()) {
+                    if (_subFormKey.currentState != null &&
+                        _subFormKey.currentState!.validate()) {
                       subNames[subNamesController.text] = false;
                     }
                     widget.taskDetails!(
