@@ -48,7 +48,7 @@ class CustomDatabase {
       """
       CREATE TABLE IF NOT EXISTS $tableName2 (
       "parentName" TEXT NOT NULL, 
-      "subName" TEXT UNIQUE NOT NULL,
+      "subName" TEXT NOT NULL,
       "isSubChecked" INTEGER NOT NULL,
       FOREIGN KEY(parentName) REFERENCES $tableName1(name),
       PRIMARY KEY (parentName, subName)

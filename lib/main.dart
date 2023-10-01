@@ -48,14 +48,14 @@ class _HomeState extends State<Home> {
         checked: false,
         ifSelectOne: ifSelectOne,
       );
-      if (subList!.isNotEmpty) {
-        for (var sName in subList.keys) {
-          customDatabase.createSubTask(
-            parentName: name,
-            subName: sName,
-            subChecked: false,
-          );
-        }
+    }
+    if (subList!.isNotEmpty) {
+      for (var sName in subList.keys) {
+        customDatabase.createSubTask(
+          parentName: name,
+          subName: sName,
+          subChecked: false,
+        );
       }
     }
 
@@ -257,63 +257,72 @@ class _HomeState extends State<Home> {
                     shrinkWrap: true,
                     itemCount: tasks.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return edit == true
-                          ? Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    FontAwesomeIcons.circleMinus,
-                                    color: Colors.red,
-                                    size: 20,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: MaterialButton(
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return TaskDetailsDialog(
-                                              task: tasks[index],
-                                              taskDetails: addTask,
-                                              verifyDayComplete:
-                                                  verifyDayComplete,
-                                              allTasks: tasks,
-                                              index: index,
+                      return AnimatedSwitcher(
+                        duration: const Duration(seconds: 1),
+                        child: AnimatedSlide(
+                          duration: const Duration(seconds: 1),
+                          offset: const Offset(0, 0),
+                          child: edit == true
+                              ? Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        FontAwesomeIcons.circleMinus,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 8),
+                                        child: MaterialButton(
+                                          padding: EdgeInsets.zero,
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return TaskDetailsDialog(
+                                                  task: tasks[index],
+                                                  taskDetails: addTask,
+                                                  verifyDayComplete:
+                                                      verifyDayComplete,
+                                                  allTasks: tasks,
+                                                  index: index,
+                                                );
+                                              },
                                             );
                                           },
-                                        );
-                                      },
-                                      child: Card(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: CustomCheckBox(
-                                            taskDetails: addTask,
-                                            edit: edit,
-                                            task: tasks[index],
-                                            allTasks: tasks,
-                                            verifyDayComplete:
-                                                verifyDayComplete,
+                                          child: Card(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(15.0),
+                                              child: CustomCheckBox(
+                                                taskDetails: addTask,
+                                                edit: edit,
+                                                task: tasks[index],
+                                                allTasks: tasks,
+                                                verifyDayComplete:
+                                                    verifyDayComplete,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Card(
-                              child: CustomCheckBox(
-                              taskDetails: addTask,
-                              edit: edit,
-                              task: tasks[index],
-                              allTasks: tasks,
-                              verifyDayComplete: verifyDayComplete,
-                            ));
+                                  ],
+                                )
+                              : Card(
+                                  child: CustomCheckBox(
+                                  taskDetails: addTask,
+                                  edit: edit,
+                                  task: tasks[index],
+                                  allTasks: tasks,
+                                  verifyDayComplete: verifyDayComplete,
+                                )),
+                        ),
+                      );
                     },
                   ),
                 )
