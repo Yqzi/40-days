@@ -35,6 +35,7 @@ class _HomeState extends State<Home> {
   List<Box> boxes = [];
   late int yesterday;
   bool edit = false;
+  Offset _offset = const Offset(0, 0);
 
   void addTask(
       String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
@@ -241,6 +242,9 @@ class _HomeState extends State<Home> {
                     IconButton(
                       onPressed: () {
                         edit = !edit;
+                        _offset = _offset.dx == 0
+                            ? const Offset(0.1, 0)
+                            : Offset.zero;
                         setState(() {});
                       },
                       icon: Icon(
@@ -257,11 +261,12 @@ class _HomeState extends State<Home> {
                     shrinkWrap: true,
                     itemCount: tasks.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return AnimatedSwitcher(
+                      return AnimatedSlide(
+                        curve: Curves.easeIn,
                         duration: const Duration(seconds: 1),
-                        child: AnimatedSlide(
+                        offset: _offset,
+                        child: AnimatedSwitcher(
                           duration: const Duration(seconds: 1),
-                          offset: const Offset(0, 0),
                           child: edit == true
                               ? Row(
                                   children: [
