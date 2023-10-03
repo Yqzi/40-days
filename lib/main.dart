@@ -29,13 +29,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final Preferences _prefs = Preferences();
   final CustomDatabase customDatabase = CustomDatabase();
+  final Preferences _prefs = Preferences();
+  late int yesterday;
   List<Task> tasks = [];
   List<Box> boxes = [];
-  late int yesterday;
   bool edit = false;
-  Offset _offset = const Offset(0, 0);
 
   void addTask(
       String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
@@ -48,6 +47,7 @@ class _HomeState extends State<Home> {
         name: name,
         checked: false,
         ifSelectOne: ifSelectOne,
+        index: tasks.length - 1,
       );
     }
     if (subList!.isNotEmpty) {
@@ -242,9 +242,6 @@ class _HomeState extends State<Home> {
                     IconButton(
                       onPressed: () {
                         edit = !edit;
-                        _offset = _offset.dx == 0
-                            ? const Offset(0.1, 0)
-                            : Offset.zero;
                         setState(() {});
                       },
                       icon: Icon(
@@ -255,19 +252,30 @@ class _HomeState extends State<Home> {
                   ],
                 ),
                 Expanded(
-                  child: ListView.builder(
+                  child: ReorderableListView(
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
-                    itemCount: tasks.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return AnimatedSlide(
-                        curve: Curves.easeIn,
-                        duration: const Duration(seconds: 1),
-                        offset: _offset,
-                        child: AnimatedSwitcher(
-                          duration: const Duration(seconds: 1),
-                          child: edit == true
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final Task item = tasks.removeAt(oldIndex);
+                        tasks.insert(newIndex, item);
+                        for (Task task in tasks) {
+                          int idx = 0;
+                          customDatabase.updateIndex(
+                              index: idx, prevName: task.name);
+                          idx++;
+                        }
+                      });
+                    },
+                    children: [
+                      for (int index = 0; index < tasks.length; index++)
+                        ListTile(
+                          key: Key(index.toString()),
+                          title: edit == true
                               ? Row(
                                   children: [
                                     IconButton(
@@ -320,15 +328,15 @@ class _HomeState extends State<Home> {
                                 )
                               : Card(
                                   child: CustomCheckBox(
-                                  taskDetails: addTask,
-                                  edit: edit,
-                                  task: tasks[index],
-                                  allTasks: tasks,
-                                  verifyDayComplete: verifyDayComplete,
-                                )),
-                        ),
-                      );
-                    },
+                                    taskDetails: addTask,
+                                    edit: edit,
+                                    task: tasks[index],
+                                    allTasks: tasks,
+                                    verifyDayComplete: verifyDayComplete,
+                                  ),
+                                ),
+                        )
+                    ],
                   ),
                 )
               ],

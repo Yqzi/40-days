@@ -38,6 +38,7 @@ class CustomDatabase {
     await database.execute(
       """
       CREATE TABLE IF NOT EXISTS $tableName1 (
+      "i" INTEGER UNIQUE,
       "name" TEXT PRIMARY KEY,
       "ifSelectOne" INTEGER NOT NULL,
       "isChecked" INTEGER NOT NULL
@@ -61,12 +62,13 @@ class CustomDatabase {
     required String name,
     required bool ifSelectOne,
     required bool checked,
+    required int index,
   }) async {
     int check = checked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
     return await (await database).rawInsert(
-      "INSERT INTO $tableName1 (name, ifSelectOne, isChecked) VALUES (?,?,?)",
-      [name, one, check],
+      "INSERT INTO $tableName1 (i, name, ifSelectOne, isChecked) VALUES (?,?,?,?)",
+      [index, name, one, check],
     );
   }
 
@@ -83,8 +85,8 @@ class CustomDatabase {
   }
 
   Future<List<Task>> fetchAll() async {
-    final tasksQuery =
-        await (await database).rawQuery('''SELECT * FROM $tableName1''');
+    final tasksQuery = await (await database)
+        .rawQuery('''SELECT * FROM $tableName1 ORDER BY i''');
     final subQuery =
         await (await database).rawQuery('''SELECT * FROM $tableName2''');
 
@@ -100,6 +102,12 @@ class CustomDatabase {
       });
     });
     return tasks;
+  }
+
+  Future<void> updateIndex(
+      {required int index, required String prevName}) async {
+    await (await database).rawQuery(
+        '''UPDATE $tableName1 SET i = "$index" WHERE name = "$prevName" ''');
   }
 
   Future<void> updateTask(

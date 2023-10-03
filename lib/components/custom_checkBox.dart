@@ -39,14 +39,15 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
     String? prevName,
   }) {
     customDatabase.updateTask(
-        name ?? widget.task.name,
-        ifSelectOne ?? widget.task.ifSelectOne,
-        newChecked ?? widget.task.isChecked,
-        sub,
-        widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
-        sub ?? widget.task.subList.keys.lastOrNull,
-        task: widget.task,
-        prevName: prevName ?? widget.task.name);
+      name ?? widget.task.name,
+      ifSelectOne ?? widget.task.ifSelectOne,
+      newChecked ?? widget.task.isChecked,
+      sub,
+      widget.task.subList[sub ?? widget.task.subList.keys.lastOrNull],
+      sub ?? widget.task.subList.keys.lastOrNull,
+      task: widget.task,
+      prevName: prevName ?? widget.task.name,
+    );
   }
 
   @override
