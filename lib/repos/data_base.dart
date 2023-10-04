@@ -38,7 +38,7 @@ class CustomDatabase {
     await database.execute(
       """
       CREATE TABLE IF NOT EXISTS $tableName1 (
-      "i" INTEGER UNIQUE,
+      "i" INTEGER NOT NULL,
       "name" TEXT PRIMARY KEY,
       "ifSelectOne" INTEGER NOT NULL,
       "isChecked" INTEGER NOT NULL
@@ -106,6 +106,8 @@ class CustomDatabase {
 
   Future<void> updateIndex(
       {required int index, required String prevName}) async {
+    print(index);
+    print(prevName);
     await (await database).rawQuery(
         '''UPDATE $tableName1 SET i = "$index" WHERE name = "$prevName" ''');
   }

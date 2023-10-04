@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../models/task.dart';
 import '../repos/data_base.dart';
@@ -79,6 +82,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
   void updateName() {
     if (taskNameController.text.isNotEmpty || taskNameController.text != '') {
       if (_taskFormKey.currentState!.validate()) {
+        print('hello');
         title = taskNameController.text;
         if (widget.task != null) {
           updateTask(title: title);
@@ -149,14 +153,34 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                         updateName();
                       });
                     },
-                    child: const Text("ADD SUBLIST +"),
+                    child: ifSubList
+                        ? const Row(
+                            children: [
+                              Text(
+                                "Sublist Added ",
+                                style: TextStyle(color: Colors.green),
+                              ),
+                              Icon(
+                                FontAwesomeIcons.check,
+                                color: Colors.green,
+                                size: 15,
+                              )
+                            ],
+                          )
+                        : const Text("ADD SUBLIST +"),
                   ),
                   TextButton(
                     onPressed: () {
                       ifSelectOne = !ifSelectOne;
                       updateName();
+                      setState(() {});
                     },
-                    child: const Text('Select One?'),
+                    child: ifSelectOne
+                        ? const Text(
+                            'Select One',
+                            style: TextStyle(color: Colors.green),
+                          )
+                        : const Text('Select One?'),
                   )
                 ],
               ),
@@ -178,28 +202,41 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                         }
                         subNames[value] = false;
                         subNamesController.clear();
-                        taskFocusNode.requestFocus();
+                        subFocusNode.requestFocus();
                       }
                     },
                   ),
                 ),
               if (ifSubList)
-                for (int i = 0; i < subNames.length; i++)
-                  Text(subNames.keys.elementAt(i)),
+                // FIX LISTVIEW NO WORK
+                Expanded(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: subNames.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(subNames.keys.elementAt(index)),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const Divider(),
+                  ),
+                ),
               TextButton(
                 onPressed: () {
                   if (_taskFormKey.currentState!.validate()) {
+                    updateName();
                     if (widget.task != null &&
-                        !subNames.containsKey(subNamesController.text)) {
+                        !subNames.containsKey(subNamesController.text) &&
+                        ifSubList) {
                       updateTask(sub: subNamesController.text, addNewSub: true);
                       widget.verifyDayComplete!();
-                      title = taskNameController.text;
+                      // title = taskNameController.text;
                       updateTask(
                         title: title,
                         checked: false,
                         one: ifSelectOne,
                       );
-                      setState(() {});
                     }
                     if (subNamesController.text.isNotEmpty) {
                       subNames[subNamesController.text] = false;
@@ -210,6 +247,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                       ifSelectOne,
                       widget.index,
                     );
+                    setState(() {});
                     Navigator.of(context).pop();
                   }
                 },

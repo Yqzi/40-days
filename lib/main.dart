@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:forty_days/models/box.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
-import 'package:forty_days/models/task.dart';
-import 'package:forty_days/repos/data_base.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
+import 'package:forty_days/repos/data_base.dart';
+import 'package:forty_days/models/task.dart';
+import 'package:forty_days/models/box.dart';
+import 'package:flutter/material.dart';
 
 import 'components/box_widget.dart';
 import 'components/task_details_dialog.dart';
@@ -261,10 +261,10 @@ class _HomeState extends State<Home> {
                         if (oldIndex < newIndex) {
                           newIndex -= 1;
                         }
+                        int idx = 0;
                         final Task item = tasks.removeAt(oldIndex);
                         tasks.insert(newIndex, item);
                         for (Task task in tasks) {
-                          int idx = 0;
                           customDatabase.updateIndex(
                               index: idx, prevName: task.name);
                           idx++;
