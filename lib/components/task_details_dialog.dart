@@ -82,7 +82,6 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
   void updateName() {
     if (taskNameController.text.isNotEmpty || taskNameController.text != '') {
       if (_taskFormKey.currentState!.validate()) {
-        print('hello');
         title = taskNameController.text;
         if (widget.task != null) {
           updateTask(title: title);
@@ -102,16 +101,19 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
           updateName();
         },
         child: AlertDialog(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
               Radius.circular(30),
             ),
           ),
           title: Text(title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (ifSubList == false || taskNameController.text == '')
+          content: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 TextFormField(
                   controller: taskNameController,
                   focusNode: taskFocusNode,
@@ -143,117 +145,135 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                     }
                   },
                 ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        ifSubList = !ifSubList;
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          ifSubList = !ifSubList;
+                          updateName();
+                        });
+                      },
+                      child: ifSubList
+                          ? const Row(
+                              children: [
+                                Text(
+                                  "Sublist Added ",
+                                  style: TextStyle(color: Colors.green),
+                                ),
+                                Icon(
+                                  FontAwesomeIcons.check,
+                                  color: Colors.green,
+                                  size: 15,
+                                )
+                              ],
+                            )
+                          : const Text("ADD SUBLIST +"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        ifSelectOne = !ifSelectOne;
                         updateName();
-                      });
-                    },
-                    child: ifSubList
-                        ? const Row(
+                        setState(() {});
+                      },
+                      child: ifSelectOne
+                          ? const Text(
+                              'Select One',
+                              style: TextStyle(color: Colors.green),
+                            )
+                          : const Text('Select One?'),
+                    )
+                  ],
+                ),
+                if (ifSubList == true)
+                  TextFormField(
+                    controller: subNamesController,
+                    focusNode: subFocusNode,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      labelText: "add sub task: ",
+                    ),
+                    onFieldSubmitted: (value) => setState(
+                      () {
+                        if (subNamesController.text.isNotEmpty) {
+                          if (widget.task != null) {
+                            updateTask(
+                                checked: false, sub: value, addNewSub: true);
+                          }
+                          subNames[value] = false;
+                          subNamesController.clear();
+                          subFocusNode.requestFocus();
+                        }
+                      },
+                    ),
+                  ),
+                if (ifSubList)
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 100),
+                    child: Scrollbar(
+                      trackVisibility: true,
+                      thickness: 3,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16, horizontal: 5),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                "Sublist Added ",
-                                style: TextStyle(color: Colors.green),
-                              ),
-                              Icon(
-                                FontAwesomeIcons.check,
-                                color: Colors.green,
-                                size: 15,
+                              for (int i = 0; i < subNames.length; i++)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                  child: Text(
+                                    subNames.keys.elementAt(i),
+                                  ),
+                                ),
+                              SizedBox(
+                                height: 8,
+                                child: Container(),
                               )
                             ],
-                          )
-                        : const Text("ADD SUBLIST +"),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      ifSelectOne = !ifSelectOne;
+                TextButton(
+                  onPressed: () {
+                    if (_taskFormKey.currentState!.validate()) {
                       updateName();
-                      setState(() {});
-                    },
-                    child: ifSelectOne
-                        ? const Text(
-                            'Select One',
-                            style: TextStyle(color: Colors.green),
-                          )
-                        : const Text('Select One?'),
-                  )
-                ],
-              ),
-              if (ifSubList == true)
-                TextFormField(
-                  controller: subNamesController,
-                  focusNode: subFocusNode,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    labelText: "add sub task: ",
-                  ),
-                  onFieldSubmitted: (value) => setState(
-                    () {
-                      if (subNamesController.text.isNotEmpty) {
-                        if (widget.task != null) {
-                          updateTask(
-                              checked: false, sub: value, addNewSub: true);
-                        }
-                        subNames[value] = false;
-                        subNamesController.clear();
-                        subFocusNode.requestFocus();
+                      if (widget.task != null &&
+                          !subNames.containsKey(subNamesController.text) &&
+                          ifSubList) {
+                        updateTask(
+                            sub: subNamesController.text, addNewSub: true);
+                        widget.verifyDayComplete!();
+                        updateTask(
+                          title: title,
+                          checked: false,
+                          one: ifSelectOne,
+                        );
                       }
-                    },
-                  ),
-                ),
-              if (ifSubList)
-                // FIX LISTVIEW NO WORK
-                Expanded(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: subNames.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: Text(subNames.keys.elementAt(index)),
+                      if (subNamesController.text.isNotEmpty) {
+                        subNames[subNamesController.text] = false;
+                      }
+                      widget.taskDetails!(
+                        title,
+                        subNames,
+                        ifSelectOne,
+                        widget.index,
                       );
-                    },
-                    separatorBuilder: (BuildContext context, int index) =>
-                        const Divider(),
-                  ),
+                      setState(() {});
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text("DONE"),
                 ),
-              TextButton(
-                onPressed: () {
-                  if (_taskFormKey.currentState!.validate()) {
-                    updateName();
-                    if (widget.task != null &&
-                        !subNames.containsKey(subNamesController.text) &&
-                        ifSubList) {
-                      updateTask(sub: subNamesController.text, addNewSub: true);
-                      widget.verifyDayComplete!();
-                      // title = taskNameController.text;
-                      updateTask(
-                        title: title,
-                        checked: false,
-                        one: ifSelectOne,
-                      );
-                    }
-                    if (subNamesController.text.isNotEmpty) {
-                      subNames[subNamesController.text] = false;
-                    }
-                    widget.taskDetails!(
-                      title,
-                      subNames,
-                      ifSelectOne,
-                      widget.index,
-                    );
-                    setState(() {});
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: const Text("DONE"),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
