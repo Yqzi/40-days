@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 
 const tableName1 = 'Tasks';
 const tableName2 = 'SubTasks';
+const holderName = '*#!@#%##';
 
 class CustomDatabase {
   Database? _database;
@@ -106,10 +107,15 @@ class CustomDatabase {
 
   Future<void> updateIndex(
       {required int index, required String prevName}) async {
-    print(index);
-    print(prevName);
     await (await database).rawQuery(
         '''UPDATE $tableName1 SET i = "$index" WHERE name = "$prevName" ''');
+  }
+
+  Future<void> updateIfSubList(
+      {required bool name, required String prevName}) async {
+    String cName = name ? prevName : holderName;
+    await (await database).rawQuery(
+        '''UPDATE $tableName2 SET parentName = "$cName" WHERE name = "$prevName" ''');
   }
 
   Future<void> updateTask(
@@ -147,5 +153,12 @@ class CustomDatabase {
       await (await database).rawQuery(
           '''UPDATE $tableName2 SET isSubChecked = "$subCheck" WHERE subName = "$subName"''');
     }
+  }
+
+  Future<void> printDbase() async {
+    var x = await (await database).rawQuery('''SELECT * FROM $tableName1''');
+    var y = await (await database).rawQuery('''SELECT * FROM $tableName2''');
+    print(x);
+    print(y);
   }
 }

@@ -148,45 +148,51 @@ class __DialogState extends State<_Dialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.task.name),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var sub in subTasks.entries)
-            CheckboxListTile(
-              value: sub.value,
-              title: Text(sub.key),
-              onChanged: (value) {
-                setState(
-                  () {
-                    resetOtherCompletions();
-                    subTasks[sub.key] = value!;
-                    updateTask(sub: sub.key);
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 300),
+        child: Scrollbar(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var sub in subTasks.entries)
+                  CheckboxListTile(
+                    value: sub.value,
+                    title: Text(sub.key),
+                    onChanged: (value) {
+                      setState(
+                        () {
+                          resetOtherCompletions();
+                          subTasks[sub.key] = value!;
+                          updateTask(sub: sub.key);
+                          widget.verifyDayComplete();
+                        },
+                      );
+                    },
+                  ),
+                TextButton(
+                  onPressed: () {
+                    bool y = false;
+                    if (!widget.task.subList.containsValue(false)) {
+                      widget.task.isChecked = true;
+                      y = true;
+                    } else if (subTasks.containsValue(true) &&
+                        widget.task.ifSelectOne == true) {
+                      widget.task.isChecked = true;
+                      y = true;
+                    } else {
+                      widget.task.isChecked = false;
+                      y = false;
+                    }
+                    updateTask(newChecked: y);
                     widget.verifyDayComplete();
+                    Navigator.of(context).pop();
                   },
-                );
-              },
+                  child: const Text("DONE"),
+                ),
+              ],
             ),
-          TextButton(
-            onPressed: () {
-              bool y = false;
-              if (!widget.task.subList.containsValue(false)) {
-                widget.task.isChecked = true;
-                y = true;
-              } else if (subTasks.containsValue(true) &&
-                  widget.task.ifSelectOne == true) {
-                widget.task.isChecked = true;
-                y = true;
-              } else {
-                widget.task.isChecked = false;
-                y = false;
-              }
-              updateTask(newChecked: y);
-              widget.verifyDayComplete();
-              Navigator.of(context).pop();
-            },
-            child: const Text("DONE"),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

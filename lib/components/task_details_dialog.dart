@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -27,6 +27,7 @@ class TaskDetailsDialog extends StatefulWidget {
 }
 
 class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
+  final ScrollController _scrollController = ScrollController();
   final _taskFormKey = GlobalKey<FormState>();
   CustomDatabase customDatabase = CustomDatabase();
   TextEditingController taskNameController = TextEditingController();
@@ -52,6 +53,16 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
       setState(() {});
     }
     super.initState();
+  }
+
+  void _scrollDown() {
+    Timer(const Duration(milliseconds: 100), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(seconds: 1),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
   }
 
   void updateTask(
@@ -150,8 +161,12 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   children: [
                     TextButton(
                       onPressed: () {
+                        print('dddddd');
                         setState(() {
                           ifSubList = !ifSubList;
+                          customDatabase.updateIfSubList(
+                              name: ifSubList, prevName: title);
+                          customDatabase.printDbase();
                           updateName();
                         });
                       },
@@ -205,6 +220,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                           subNames[value] = false;
                           subNamesController.clear();
                           subFocusNode.requestFocus();
+                          _scrollDown();
                         }
                       },
                     ),
@@ -213,13 +229,15 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 100),
                     child: Scrollbar(
+                      controller: _scrollController,
                       trackVisibility: true,
                       thickness: 3,
                       thumbVisibility: true,
                       child: SingleChildScrollView(
+                        controller: _scrollController,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 5),
+                          padding:
+                              const EdgeInsets.only(top: 16, left: 5, right: 5),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -232,7 +250,6 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                                   ),
                                 ),
                               SizedBox(
-                                height: 8,
                                 child: Container(),
                               )
                             ],
