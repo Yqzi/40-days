@@ -161,11 +161,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        print('dddddd');
                         setState(() {
                           ifSubList = !ifSubList;
-                          customDatabase.updateIfSubList(
-                              name: ifSubList, prevName: title);
                           customDatabase.printDbase();
                           updateName();
                         });
@@ -283,6 +280,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                         ifSelectOne,
                         widget.index,
                       );
+                      customDatabase.updateIfSubList(
+                          name: ifSubList, prevName: title);
                       setState(() {});
                       Navigator.of(context).pop();
                     }
