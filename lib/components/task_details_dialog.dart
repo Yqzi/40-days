@@ -281,7 +281,7 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                         widget.index,
                       );
                       customDatabase.updateIfSubList(
-                          name: ifSubList, prevName: title);
+                          hasSublist: ifSubList, prevName: title);
                       setState(() {});
                       Navigator.of(context).pop();
                     }

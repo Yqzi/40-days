@@ -42,7 +42,8 @@ class CustomDatabase {
       "i" INTEGER NOT NULL,
       "name" TEXT PRIMARY KEY,
       "ifSelectOne" INTEGER NOT NULL,
-      "isChecked" INTEGER NOT NULL
+      "isChecked" INTEGER NOT NULL,
+      "ifIsSubList" INTEGER NOT NULL
       ); 
     """,
     );
@@ -52,12 +53,11 @@ class CustomDatabase {
       "parentName" TEXT NOT NULL, 
       "subName" TEXT NOT NULL,
       "isSubChecked" INTEGER NOT NULL,
-      FOREIGN KEY(parentName) REFERENCES $tableName1(name)
-
+      FOREIGN KEY(parentName) REFERENCES $tableName1(name),
+      PRIMARY KEY (parentName, subName)
       ); 
     """,
     );
-    // PRIMARY KEY (parentName, subName)
   }
 
   Future<int> createTask({
@@ -113,12 +113,12 @@ class CustomDatabase {
   }
 
   Future<void> updateIfSubList(
-      {required bool name, required String prevName}) async {
-    String cName = name ? prevName : holderName;
-    print(cName);
-    print(prevName);
-    await (await database).rawQuery(
-        '''UPDATE $tableName2 SET parentName = "$cName" WHERE parentName = "$prevName" ''');
+      {required bool hasSublist, required String prevName}) async {
+    int x = hasSublist == true ? 1 : 0;
+    if (hasSublist) {
+      await (await database).rawQuery(
+          '''UPDATE $tableName1 SET ifIsSublist = "$x" WHERE name = "$prevName" ''');
+    }
   }
 
   Future<void> updateTask(
