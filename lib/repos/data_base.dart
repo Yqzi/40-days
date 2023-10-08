@@ -69,8 +69,8 @@ class CustomDatabase {
     int check = checked == true ? 1 : 0;
     int one = ifSelectOne == true ? 1 : 0;
     return await (await database).rawInsert(
-      "INSERT INTO $tableName1 (i, name, ifSelectOne, isChecked) VALUES (?,?,?,?)",
-      [index, name, one, check],
+      "INSERT INTO $tableName1 (i, name, ifSelectOne, isChecked, ifIsSubList) VALUES (?,?,?,?,?)",
+      [index, name, one, check, 0],
     );
   }
 
@@ -84,6 +84,13 @@ class CustomDatabase {
       "INSERT INTO $tableName2 (parentName, subName, isSubChecked) VALUES (?, ?, ?)",
       [parentName, subName, check],
     );
+  }
+
+  Future<void> removeTask({required String taskName}) async {
+    await (await database)
+        .rawDelete('''DELETE FROM $tableName1 WHERE name = "$taskName"''');
+    await (await database).rawDelete(
+        '''DELETE FROM $tableName2 WHERE parentName = "$taskName"''');
   }
 
   Future<List<Task>> fetchAll() async {

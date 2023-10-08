@@ -279,7 +279,17 @@ class _HomeState extends State<Home> {
                               ? Row(
                                   children: [
                                     IconButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return verificationDialog(
+                                              index,
+                                              context,
+                                            );
+                                          },
+                                        );
+                                      },
                                       icon: const Icon(
                                         FontAwesomeIcons.circleMinus,
                                         color: Colors.red,
@@ -340,6 +350,78 @@ class _HomeState extends State<Home> {
                   ),
                 )
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  AlertDialog verificationDialog(int index, BuildContext context) {
+    return AlertDialog(
+      contentPadding: const EdgeInsets.all(10),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(30),
+        ),
+      ),
+      titlePadding: const EdgeInsets.only(top: 32.0, bottom: 8.0),
+      title: const Text(
+        'Confirmation',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Are you sure you want want to delete ${tasks[index].name}?",
+            textAlign: TextAlign.center,
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 16.0),
+            child: Divider(),
+          ),
+          IntrinsicHeight(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const VerticalDivider(),
+                  TextButton(
+                    onPressed: () {
+                      customDatabase.removeTask(taskName: tasks[index].name);
+                      tasks.removeAt(index);
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
