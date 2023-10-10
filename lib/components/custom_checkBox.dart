@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/models/task.dart';
 import 'package:forty_days/repos/data_base.dart';
 
+import 'slideaableWidget.dart';
+
 class CustomCheckBox extends StatefulWidget {
   final Task task;
   final void Function() verifyDayComplete;
@@ -155,19 +157,22 @@ class __DialogState extends State<_Dialog> {
             child: Column(
               children: [
                 for (var sub in subTasks.entries)
-                  CheckboxListTile(
-                    value: sub.value,
-                    title: Text(sub.key),
-                    onChanged: (value) {
-                      setState(
-                        () {
-                          resetOtherCompletions();
-                          subTasks[sub.key] = value!;
-                          updateTask(sub: sub.key);
-                          widget.verifyDayComplete();
-                        },
-                      );
-                    },
+                  Slideablewidget(
+                    onSlide: () {},
+                    child: CheckboxListTile(
+                      value: sub.value,
+                      title: Text(sub.key),
+                      onChanged: (value) {
+                        setState(
+                          () {
+                            resetOtherCompletions();
+                            subTasks[sub.key] = value!;
+                            updateTask(sub: sub.key);
+                            widget.verifyDayComplete();
+                          },
+                        );
+                      },
+                    ),
                   ),
                 TextButton(
                   onPressed: () {
