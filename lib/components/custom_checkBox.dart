@@ -158,7 +158,11 @@ class __DialogState extends State<_Dialog> {
               children: [
                 for (var sub in subTasks.entries)
                   Slideablewidget(
-                    onSlide: () {},
+                    onSlide: () {
+                      customDatabase.removeSubTask(subTaskName: sub.key);
+                      subTasks.remove(sub.key);
+                      setState(() {});
+                    },
                     child: CheckboxListTile(
                       value: sub.value,
                       title: Text(sub.key),

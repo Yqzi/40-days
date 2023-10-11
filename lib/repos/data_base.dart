@@ -93,6 +93,11 @@ class CustomDatabase {
         '''DELETE FROM $tableName2 WHERE parentName = "$taskName"''');
   }
 
+  Future<void> removeSubTask({required String subTaskName}) async {
+    await (await database).rawDelete(
+        '''DELETE FROM $tableName2 WHERE subName = "$subTaskName"''');
+  }
+
   Future<List<Task>> fetchAll() async {
     final tasksQuery = await (await database)
         .rawQuery('''SELECT * FROM $tableName1 ORDER BY i''');

@@ -8,7 +8,7 @@ class Slideablewidget extends StatefulWidget {
   const Slideablewidget({
     required this.child,
     required this.onSlide,
-    this.actionThreshold = 0.1,
+    this.actionThreshold = 0.8,
     super.key,
   });
 
@@ -42,7 +42,7 @@ class _SlideablewidgetState extends State<Slideablewidget>
           animation: _controller,
           builder: (BuildContext context, Widget? child) => SlideTransition(
             position: AlwaysStoppedAnimation(Offset(_controller.value, 0)),
-            child: widget.child,
+            child: Card(child: widget.child),
           ),
         ),
       );
@@ -63,7 +63,7 @@ class _SlideablewidgetState extends State<Slideablewidget>
 
   void onDragEnd(DragEndDetails details) {
     if (_controller.value > widget.actionThreshold) {
-      widget.onSlide;
+      widget.onSlide();
     }
     _controller.fling(velocity: -1);
   }
