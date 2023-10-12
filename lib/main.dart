@@ -35,6 +35,7 @@ class _HomeState extends State<Home> {
   List<Task> tasks = [];
   List<Box> boxes = [];
   bool edit = false;
+  bool dayMissed = false;
 
   void addTask(
       String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
@@ -81,6 +82,23 @@ class _HomeState extends State<Home> {
       }
     }
     setState(() {});
+    checkDate();
+  }
+
+  Future<bool> checkDate() async {
+    int index = boxes.indexWhere((e) => e.completionDate == null);
+
+    print(boxes);
+    print(index);
+    if (index > 0) {
+      if (boxes[index - 1].completionDate !=
+              DateTime.now().subtract(const Duration(days: 1)) &&
+          !boxes[index - 1].isToday) {
+        print('day missed');
+        return dayMissed = true;
+      }
+    }
+    return dayMissed = false;
   }
 
   void verifyDayComplete() {
@@ -181,11 +199,22 @@ class _HomeState extends State<Home> {
     super.initState();
     setTasks();
     addDay();
+    // checkDate();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    if (dayMissed == true) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => const AlertDialog(
+          title: Text('ALERT'),
+          content: Text(
+              'You have missed a day! The 40 days will now reset.\n if There was a mistake press the setting in the top right of this thing'),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         shape: const RoundedRectangleBorder(
