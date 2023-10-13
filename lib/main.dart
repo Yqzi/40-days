@@ -65,7 +65,7 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  void addDay([int? completed]) async {
+  Future<void> addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
         Map? x = await _prefs.loadDays(i.toString());
@@ -81,8 +81,8 @@ class _HomeState extends State<Home> {
         );
       }
     }
-    setState(() {});
-    checkDate();
+    dayMissed = await checkDate();
+    print('this in addDay dayMissed = $dayMissed');
   }
 
   Future<bool> checkDate() async {
@@ -95,10 +95,10 @@ class _HomeState extends State<Home> {
               DateTime.now().subtract(const Duration(days: 1)) &&
           !boxes[index - 1].isToday) {
         print('day missed');
-        return dayMissed = true;
+        return true;
       }
     }
-    return dayMissed = false;
+    return false;
   }
 
   void verifyDayComplete() {
@@ -198,23 +198,59 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     setTasks();
-    addDay();
-    // checkDate();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        await addDay();
+        if (!dayMissed) {
+          return;
+        }
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(30),
+              ),
+            ),
+            contentPadding: const EdgeInsets.only(
+                top: 20.0, right: 24.0, left: 24.0, bottom: 16.0),
+            actionsPadding:
+                const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 0.0),
+            title: const Text(
+              'ALERT',
+              textAlign: TextAlign.center,
+            ),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'You have missed a day! The 40 days will now reset.',
+                  textAlign: TextAlign.center,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: 12.0, left: 8.0, right: 8.0, bottom: 0.0),
+                  child: Text(
+                    'If There was a mistake press the settings icon in the top right corner',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 10),
+                  ),
+                )
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () {}, child: const Text('DONE')),
+            ],
+          ),
+        );
+      },
+    );
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (dayMissed == true) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => const AlertDialog(
-          title: Text('ALERT'),
-          content: Text(
-              'You have missed a day! The 40 days will now reset.\n if There was a mistake press the setting in the top right of this thing'),
-        ),
-      );
-    }
     return Scaffold(
       appBar: AppBar(
         shape: const RoundedRectangleBorder(
