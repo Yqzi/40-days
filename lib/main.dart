@@ -82,19 +82,14 @@ class _HomeState extends State<Home> {
       }
     }
     dayMissed = await checkDate();
-    print('this in addDay dayMissed = $dayMissed');
   }
 
   Future<bool> checkDate() async {
     int index = boxes.indexWhere((e) => e.completionDate == null);
-
-    print(boxes);
-    print(index);
     if (index > 0) {
       if (boxes[index - 1].completionDate !=
               DateTime.now().subtract(const Duration(days: 1)) &&
           !boxes[index - 1].isToday) {
-        print('day missed');
         return true;
       }
     }
@@ -217,9 +212,25 @@ class _HomeState extends State<Home> {
                 top: 20.0, right: 24.0, left: 24.0, bottom: 16.0),
             actionsPadding:
                 const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 0.0),
-            title: const Text(
-              'ALERT',
-              textAlign: TextAlign.center,
+            title: Row(
+              children: [
+                Expanded(flex: 1, child: Container()),
+                const Expanded(
+                  flex: 8,
+                  child: Text(
+                    'ALERT',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    splashRadius: 15,
+                    onPressed: () {},
+                    icon: const Icon(FontAwesomeIcons.gear),
+                  ),
+                )
+              ],
             ),
             content: const Column(
               mainAxisSize: MainAxisSize.min,
@@ -232,15 +243,20 @@ class _HomeState extends State<Home> {
                   padding: EdgeInsets.only(
                       top: 12.0, left: 8.0, right: 8.0, bottom: 0.0),
                   child: Text(
-                    'If There was a mistake press the settings icon in the top right corner',
+                    '* If There was a mistake press the settings icon in the top right corner',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 10),
                   ),
-                )
+                ),
               ],
             ),
             actions: [
-              TextButton(onPressed: () {}, child: const Text('DONE')),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('DONE'),
+              ),
             ],
           ),
         );
