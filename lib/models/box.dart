@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Box {
   final Color color;
-  final DateTime? completionDate;
+  DateTime? completionDate;
   bool isComplete;
   int lines;
   int tasks;

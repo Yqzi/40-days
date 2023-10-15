@@ -22,6 +22,11 @@ class Preferences {
     ]);
   }
 
+  void removeAllDays(int index) async {
+    var prefs = await _preferences;
+    prefs.remove(index.toString());
+  }
+
   void saveYesterday(int yesterday) async {
     var prefs = await _preferences;
     prefs.setInt(y, yesterday);

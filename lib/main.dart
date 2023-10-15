@@ -253,7 +253,18 @@ class _HomeState extends State<Home> {
             actions: [
               TextButton(
                 onPressed: () {
+                  int i = 0;
                   Navigator.pop(context);
+                  boxes.forEach((e) {
+                    if (e.isComplete) {
+                      e.isComplete = false;
+                      e.completionDate = null;
+                      _prefs.removeAllDays(i);
+                      i++;
+                    }
+                    return;
+                  });
+                  setState(() {});
                 },
                 child: const Text('DONE'),
               ),
