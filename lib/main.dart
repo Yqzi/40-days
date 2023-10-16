@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
@@ -87,8 +89,8 @@ class _HomeState extends State<Home> {
   Future<bool> checkDate() async {
     int index = boxes.indexWhere((e) => e.completionDate == null);
     if (index > 0) {
-      if (boxes[index - 1].completionDate !=
-              DateTime.now().subtract(const Duration(days: 1)) &&
+      if (boxes[index - 1].completionDate!.day !=
+              DateTime.now().subtract(const Duration(days: 1)).day &&
           !boxes[index - 1].isToday) {
         return true;
       }
@@ -226,7 +228,68 @@ class _HomeState extends State<Home> {
                   flex: 1,
                   child: IconButton(
                     splashRadius: 15,
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) => BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(30),
+                              ),
+                            ),
+                            title: const Text(
+                              'Selecting YES means you keep your progress',
+                              textAlign: TextAlign.center,
+                            ),
+                            contentPadding: const EdgeInsets.only(
+                                right: 24, left: 24, top: 10),
+                            content: const Text(
+                              '*This should only be used if you forgot to mark*',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                            actionsPadding:
+                                const EdgeInsets.symmetric(horizontal: 24),
+                            actions: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('NO'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                    child: const Text('YES'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ).then((value) {
+                        if (value == true) {
+                          for (Task task in tasks) {
+                            if (task.subList.isEmpty) {
+                              task.isChecked = false;
+                            } else {
+                              for (var key in task.subList.keys) {
+                                task.subList[key] = false;
+                              }
+                              task.isChecked = false;
+                            }
+                          }
+                          Navigator.pop(context);
+                        }
+                      });
+                    },
                     icon: const Icon(FontAwesomeIcons.gear),
                   ),
                 )
@@ -255,15 +318,27 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   int i = 0;
                   Navigator.pop(context);
-                  boxes.forEach((e) {
-                    if (e.isComplete) {
-                      e.isComplete = false;
-                      e.completionDate = null;
-                      _prefs.removeAllDays(i);
-                      i++;
+                  boxes.forEach(
+                    (e) {
+                      if (e.isComplete) {
+                        e.isComplete = false;
+                        e.completionDate = null;
+                        _prefs.removeAllDays(i);
+                        i++;
+                      }
+                      return;
+                    },
+                  );
+                  for (Task task in tasks) {
+                    if (task.subList.isEmpty) {
+                      task.isChecked = false;
+                    } else {
+                      for (var key in task.subList.keys) {
+                        task.subList[key] = false;
+                      }
+                      task.isChecked = false;
                     }
-                    return;
-                  });
+                  }
                   setState(() {});
                 },
                 child: const Text('DONE'),
