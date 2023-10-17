@@ -9,6 +9,7 @@ import 'package:forty_days/models/box.dart';
 import 'package:flutter/material.dart';
 
 import 'components/box_widget.dart';
+import 'components/missed_dialog.dart';
 import 'components/task_details_dialog.dart';
 
 void main() {
@@ -32,7 +33,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final CustomDatabase customDatabase = CustomDatabase();
-  final Preferences _prefs = Preferences();
+  final Preferences prefs = Preferences();
   late int yesterday;
   List<Task> tasks = [];
   List<Box> boxes = [];
@@ -70,7 +71,7 @@ class _HomeState extends State<Home> {
   Future<void> addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
-        Map? x = await _prefs.loadDays(i.toString());
+        Map? x = await prefs.loadDays(i.toString());
         boxes.add(
           x == null
               ? Box(tasks: tasks.length)
@@ -115,7 +116,7 @@ class _HomeState extends State<Home> {
         tasks: tasks.length,
         lines: lines,
       );
-      _prefs.saveDays(
+      prefs.saveDays(
         index: x.toString(),
         completionDate: boxes[x].completionDate!,
         isComplete: true,
@@ -139,7 +140,7 @@ class _HomeState extends State<Home> {
         );
         y = index;
       }
-      _prefs.saveDays(
+      prefs.saveDays(
         index: y.toString(),
         completionDate: boxes[y].completionDate!,
         lines: lines,
@@ -155,7 +156,7 @@ class _HomeState extends State<Home> {
         boxes[index] = Box(tasks: tasks.length);
         y = index;
       }
-      _prefs.removeDays(y.toString());
+      prefs.removeDays(y.toString());
       setState(() {});
       return;
     }
@@ -175,7 +176,7 @@ class _HomeState extends State<Home> {
         }
       }
       yesterday = DateTime.now().day;
-      _prefs.saveYesterday(yesterday);
+      prefs.saveYesterday(yesterday);
     }
   }
 
@@ -186,8 +187,8 @@ class _HomeState extends State<Home> {
   }
 
   void setYesterday() async {
-    yesterday = await _prefs.loadYesterday() ?? DateTime.now().day;
-    _prefs.saveYesterday(yesterday);
+    yesterday = await prefs.loadYesterday() ?? DateTime.now().day;
+    prefs.saveYesterday(yesterday);
     resetTaskCompletion();
   }
 
@@ -204,146 +205,13 @@ class _HomeState extends State<Home> {
         // ignore: use_build_context_synchronously
         showDialog(
           context: context,
-          builder: (BuildContext context) => AlertDialog(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(30),
-              ),
-            ),
-            contentPadding: const EdgeInsets.only(
-                top: 20.0, right: 24.0, left: 24.0, bottom: 16.0),
-            actionsPadding:
-                const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 0.0),
-            title: Row(
-              children: [
-                Expanded(flex: 1, child: Container()),
-                const Expanded(
-                  flex: 8,
-                  child: Text(
-                    'ALERT',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: IconButton(
-                    splashRadius: 15,
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) => BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: AlertDialog(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(30),
-                              ),
-                            ),
-                            title: const Text(
-                              'Selecting YES means you keep your progress',
-                              textAlign: TextAlign.center,
-                            ),
-                            contentPadding: const EdgeInsets.only(
-                                right: 24, left: 24, top: 10),
-                            content: const Text(
-                              '*This should only be used if you forgot to mark*',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 10),
-                            ),
-                            actionsPadding:
-                                const EdgeInsets.symmetric(horizontal: 24),
-                            actions: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('NO'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context, true);
-                                    },
-                                    child: const Text('YES'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ).then((value) {
-                        if (value == true) {
-                          for (Task task in tasks) {
-                            if (task.subList.isEmpty) {
-                              task.isChecked = false;
-                            } else {
-                              for (var key in task.subList.keys) {
-                                task.subList[key] = false;
-                              }
-                              task.isChecked = false;
-                            }
-                          }
-                          Navigator.pop(context);
-                        }
-                      });
-                    },
-                    icon: const Icon(FontAwesomeIcons.gear),
-                  ),
-                )
-              ],
-            ),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'You have missed a day! The 40 days will now reset.',
-                  textAlign: TextAlign.center,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: 12.0, left: 8.0, right: 8.0, bottom: 0.0),
-                  child: Text(
-                    '* If There was a mistake press the settings icon in the top right corner',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 10),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  int i = 0;
-                  Navigator.pop(context);
-                  boxes.forEach(
-                    (e) {
-                      if (e.isComplete) {
-                        e.isComplete = false;
-                        e.completionDate = null;
-                        _prefs.removeAllDays(i);
-                        i++;
-                      }
-                      return;
-                    },
-                  );
-                  for (Task task in tasks) {
-                    if (task.subList.isEmpty) {
-                      task.isChecked = false;
-                    } else {
-                      for (var key in task.subList.keys) {
-                        task.subList[key] = false;
-                      }
-                      task.isChecked = false;
-                    }
-                  }
-                  setState(() {});
-                },
-                child: const Text('DONE'),
-              ),
-            ],
+          builder: (BuildContext context) => MissedDialog(
+            boxes: boxes,
+            prefs: prefs,
+            tasks: tasks,
+            setState: () {
+              setState(() {});
+            },
           ),
         );
       },
@@ -390,34 +258,37 @@ class _HomeState extends State<Home> {
                   color: Colors.white,
                   child: const Text('Tasks'),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return TaskDetailsDialog(
-                                allTasks: tasks,
-                                taskDetails: addTask,
-                              );
-                            });
-                      },
-                      icon: const Icon(FontAwesomeIcons.circlePlus),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        edit = !edit;
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        FontAwesomeIcons.penToSquare,
-                        color: (edit) ? const Color(0xFFFFE082) : Colors.white,
+                if (boxes.firstOrNull?.isComplete == false ||
+                    boxes.firstOrNull?.isToday == true)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return TaskDetailsDialog(
+                                  allTasks: tasks,
+                                  taskDetails: addTask,
+                                );
+                              });
+                        },
+                        icon: const Icon(FontAwesomeIcons.circlePlus),
                       ),
-                    )
-                  ],
-                ),
+                      IconButton(
+                        onPressed: () {
+                          edit = !edit;
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          FontAwesomeIcons.penToSquare,
+                          color:
+                              (edit) ? const Color(0xFFFFE082) : Colors.white,
+                        ),
+                      )
+                    ],
+                  ),
                 Expanded(
                   child: ReorderableListView(
                     padding: EdgeInsets.zero,
