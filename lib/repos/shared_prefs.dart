@@ -27,6 +27,11 @@ class Preferences {
     prefs.remove(index.toString());
   }
 
+  void saveFirstTimeUser() async {
+    var prefs = await _preferences;
+    prefs.setBool('first', false);
+  }
+
   void saveYesterday(int yesterday) async {
     var prefs = await _preferences;
     prefs.setInt(y, yesterday);
@@ -35,6 +40,11 @@ class Preferences {
   Future<int?> loadYesterday() async {
     var prefs = await _preferences;
     return prefs.getInt(y);
+  }
+
+  Future<bool?> loadFirst() async {
+    var prefs = await _preferences;
+    return prefs.getBool('first');
   }
 
   Future<Map?> loadDays(String index) async {

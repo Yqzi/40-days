@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/foundation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
@@ -39,6 +38,8 @@ class _HomeState extends State<Home> {
   List<Box> boxes = [];
   bool edit = false;
   bool dayMissed = false;
+  bool allowCreation = false;
+  late bool firstTimeUser;
 
   void addTask(
       String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
@@ -186,6 +187,11 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
+  void verifyFirst() async {
+    firstTimeUser = await prefs.loadFirst() ?? true;
+    setState(() {});
+  }
+
   void setYesterday() async {
     yesterday = await prefs.loadYesterday() ?? DateTime.now().day;
     prefs.saveYesterday(yesterday);
@@ -196,6 +202,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     setTasks();
+    verifyFirst();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         await addDay();
@@ -228,7 +235,54 @@ class _HomeState extends State<Home> {
             bottom: Radius.circular(10),
           ),
         ),
-        title: const Text("Habit Builder"),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Habit Builder"),
+            if (boxes.firstOrNull?.isComplete == true &&
+                boxes.firstOrNull?.isToday == false)
+              IconButton(
+                onPressed: () {
+                  if (firstTimeUser) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(30),
+                          ),
+                        ),
+                        contentPadding:
+                            const EdgeInsets.only(right: 24, left: 24, top: 10),
+                        title: const Text(
+                          'Notice',
+                          textAlign: TextAlign.center,
+                        ),
+                        content: const Text(
+                          'This feature is not meant for repetitive use',
+                          textAlign: TextAlign.center,
+                        ),
+                        actions: [
+                          Center(
+                            child: TextButton(
+                                onPressed: () {
+                                  firstTimeUser = false;
+                                  prefs.saveFirstTimeUser();
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Dismiss')),
+                          )
+                        ],
+                      ),
+                    );
+                  }
+                  allowCreation = !allowCreation;
+                  setState(() {});
+                },
+                icon: const Icon(FontAwesomeIcons.chessRook),
+              ),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -259,7 +313,8 @@ class _HomeState extends State<Home> {
                   child: const Text('Tasks'),
                 ),
                 if (boxes.firstOrNull?.isComplete == false ||
-                    boxes.firstOrNull?.isToday == true)
+                    boxes.firstOrNull?.isToday == true ||
+                    allowCreation)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
