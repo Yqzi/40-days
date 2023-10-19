@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
@@ -100,6 +99,65 @@ class _HomeState extends State<Home> {
     return false;
   }
 
+  /// Function should also be called every day
+  Future<dynamic> checkAllComplete() async {
+    if (boxes.last.isComplete) {
+      if (boxes.last.isToday) {
+        // reset to beginning, day after completion
+        boxes.forEach((e) {
+          e.isComplete = false;
+          e.completionDate = null;
+        });
+
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text(
+              'Reset',
+              textAlign: TextAlign.center,
+            ),
+            content: const Text(
+              'We have now reset the 40 days. You may now edit or add tasks to your daylies',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Dismiss'),
+                ),
+              )
+            ],
+          ),
+        );
+      }
+      // day of completion
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text(
+            'Congratulations',
+            textAlign: TextAlign.center,
+          ),
+          content: const Text(
+            'You have completed your 40 days. The reset will happen tomorrow, Good Luck.',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Dismiss'),
+            )
+          ],
+        ),
+      );
+    }
+  }
+
   void verifyDayComplete() {
     int index = boxes.indexWhere((e) => e.completionDate == null);
     int lines = tasks.where((e) => e.isChecked == true).length;
@@ -124,6 +182,7 @@ class _HomeState extends State<Home> {
         lines: lines,
         tasks: tasks.length,
       );
+      checkAllComplete();
       setState(() {});
       return;
     }
@@ -147,6 +206,7 @@ class _HomeState extends State<Home> {
         lines: lines,
         tasks: tasks.length,
       );
+      checkAllComplete();
       setState(() {});
       return;
     } else {
@@ -158,6 +218,7 @@ class _HomeState extends State<Home> {
         y = index;
       }
       prefs.removeDays(y.toString());
+      checkAllComplete();
       setState(() {});
       return;
     }
@@ -203,10 +264,11 @@ class _HomeState extends State<Home> {
     super.initState();
     setTasks();
     verifyFirst();
+    checkAllComplete();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         await addDay();
-        if (!dayMissed) {
+        if (!dayMissed || boxes.lastOrNull?.isComplete == true) {
           return;
         }
         // ignore: use_build_context_synchronously
@@ -243,6 +305,17 @@ class _HomeState extends State<Home> {
                 boxes.firstOrNull?.isToday == false)
               IconButton(
                 onPressed: () {
+                  boxes.forEach((element) {
+                    print('q');
+                    if (element != boxes.last) {
+                      element = Box(
+                        completionDate: DateTime.now(),
+                        isComplete: true,
+                        tasks: tasks.length,
+                        lines: tasks.length,
+                      );
+                    }
+                  });
                   if (firstTimeUser) {
                     showDialog(
                       context: context,
