@@ -71,6 +71,16 @@ class _HomeState extends State<Home> {
   Future<void> addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
+        // if (i == 39) {
+        //   boxes.add(Box(tasks: tasks.length));
+        //   return;
+        // }
+        // boxes.add(Box(
+        //   tasks: tasks.length,
+        //   completionDate: DateTime.now(),
+        //   isComplete: true,
+        //   lines: tasks.length,
+        // ));
         Map? x = await prefs.loadDays(i.toString());
         boxes.add(
           x == null
@@ -102,16 +112,35 @@ class _HomeState extends State<Home> {
   /// Function should also be called every day
   Future<dynamic> checkAllComplete() async {
     if (boxes.last.isComplete) {
-      if (boxes.last.isToday) {
-        // reset to beginning, day after completion
+      if (!boxes.last.isToday) {
+        // reset all days checkboxes. Day after completion
         boxes.forEach((e) {
           e.isComplete = false;
           e.completionDate = null;
         });
 
+        // reset all tasks checkboxes
+        for (Task task in tasks) {
+          if (task.subList.isEmpty) {
+            task.isChecked = false;
+          } else {
+            for (var key in task.subList.keys) {
+              task.subList[key] = false;
+            }
+            task.isChecked = false;
+          }
+        }
+
         return showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(30),
+              ),
+            ),
+            contentPadding: const EdgeInsets.only(right: 24, left: 24, top: 10),
+            actionsPadding: const EdgeInsets.symmetric(horizontal: 24),
             title: const Text(
               'Reset',
               textAlign: TextAlign.center,
@@ -137,20 +166,29 @@ class _HomeState extends State<Home> {
       return showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(30),
+            ),
+          ),
+          contentPadding: const EdgeInsets.only(right: 24, left: 24, top: 10),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 24),
           title: const Text(
             'Congratulations',
             textAlign: TextAlign.center,
           ),
           content: const Text(
-            'You have completed your 40 days. The reset will happen tomorrow, Good Luck.',
+            'You have successfully completed your 40 days. Tomorrow you will have a fresh start to add or edit your daylies to your desire.',
             textAlign: TextAlign.center,
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Dismiss'),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Dismiss'),
+              ),
             )
           ],
         ),
@@ -264,7 +302,7 @@ class _HomeState extends State<Home> {
     super.initState();
     setTasks();
     verifyFirst();
-    checkAllComplete();
+    // checkAllComplete();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         await addDay();
@@ -305,17 +343,6 @@ class _HomeState extends State<Home> {
                 boxes.firstOrNull?.isToday == false)
               IconButton(
                 onPressed: () {
-                  boxes.forEach((element) {
-                    print('q');
-                    if (element != boxes.last) {
-                      element = Box(
-                        completionDate: DateTime.now(),
-                        isComplete: true,
-                        tasks: tasks.length,
-                        lines: tasks.length,
-                      );
-                    }
-                  });
                   if (firstTimeUser) {
                     showDialog(
                       context: context,
