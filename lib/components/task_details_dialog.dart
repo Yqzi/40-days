@@ -9,6 +9,7 @@ import '../repos/data_base.dart';
 class TaskDetailsDialog extends StatefulWidget {
   final void Function(String, Map<String, bool>?, bool, int?)? taskDetails;
   final void Function()? verifyDayComplete;
+  final bool isLastDayComplete;
   final Task? task;
   final int? index;
   final List<Task> allTasks;
@@ -20,6 +21,7 @@ class TaskDetailsDialog extends StatefulWidget {
     this.verifyDayComplete,
     required this.allTasks,
     this.index,
+    required this.isLastDayComplete,
   });
 
   @override
@@ -283,7 +285,8 @@ class _TaskDetailsDialogState extends State<TaskDetailsDialog> {
                       customDatabase.updateIfSubList(
                           hasSublist: ifSubList, prevName: title);
                       setState(() {});
-                      Navigator.of(context).pop();
+                      Navigator.pop(context);
+                      if (widget.isLastDayComplete) Navigator.pop(context);
                     }
                   },
                   child: const Text("DONE"),

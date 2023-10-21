@@ -32,13 +32,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final CustomDatabase customDatabase = CustomDatabase();
   final Preferences prefs = Preferences();
+  late bool firstTimeUser;
   late int yesterday;
   List<Task> tasks = [];
   List<Box> boxes = [];
   bool edit = false;
   bool dayMissed = false;
   bool allowCreation = false;
-  late bool firstTimeUser;
 
   void addTask(
       String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
@@ -73,14 +73,24 @@ class _HomeState extends State<Home> {
       for (int i = 0; i < 40; i++) {
         // if (i == 39) {
         //   boxes.add(Box(tasks: tasks.length));
+        //   prefs.removeDay(i);
         //   return;
         // }
-        // boxes.add(Box(
-        //   tasks: tasks.length,
-        //   completionDate: DateTime.now(),
+        // boxes.add(
+        //   Box(
+        //     tasks: tasks.length,
+        //     completionDate: DateTime.now().subtract(const Duration(days: 1)),
+        //     isComplete: true,
+        //     lines: tasks.length,
+        //   ),
+        // );
+        // prefs.saveDays(
+        //   index: i.toString(),
+        //   completionDate: boxes[i].completionDate!,
         //   isComplete: true,
-        //   lines: tasks.length,
-        // ));
+        //   lines: 0,
+        //   tasks: tasks.length,
+        // );
         Map? x = await prefs.loadDays(i.toString());
         boxes.add(
           x == null
@@ -109,15 +119,16 @@ class _HomeState extends State<Home> {
     return false;
   }
 
-  /// Function should also be called every day
+  // Function should also be called every day
   Future<dynamic> checkAllComplete() async {
     if (boxes.last.isComplete) {
       if (!boxes.last.isToday) {
         // reset all days checkboxes. Day after completion
-        boxes.forEach((e) {
-          e.isComplete = false;
-          e.completionDate = null;
-        });
+        for (int i = 0; i < boxes.length; i++) {
+          boxes[i].isComplete = false;
+          boxes[i].completionDate = null;
+          prefs.removeDay(i);
+        }
 
         // reset all tasks checkboxes
         for (Task task in tasks) {
@@ -199,14 +210,17 @@ class _HomeState extends State<Home> {
   void verifyDayComplete() {
     int index = boxes.indexWhere((e) => e.completionDate == null);
     int lines = tasks.where((e) => e.isChecked == true).length;
-    var y = 0;
+    int y = 0;
 
     if (lines == tasks.length && lines > 0) {
-      var x = index > 0
+      int x = index > 0
           ? !boxes[index - 1].isToday
               ? index
               : index - 1
           : index;
+      if (index == -1) {
+        x = boxes.length - 1;
+      }
       boxes[x] = Box(
         completionDate: DateTime.now(),
         isComplete: true,
@@ -251,6 +265,9 @@ class _HomeState extends State<Home> {
       if (index > 0 && boxes[index - 1].isToday) {
         boxes[index - 1] = Box(tasks: tasks.length);
         y = index - 1;
+      } else if (index == -1) {
+        boxes.last = Box(tasks: tasks.length);
+        y = 39;
       } else {
         boxes[index] = Box(tasks: tasks.length);
         y = index;
@@ -306,6 +323,11 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         await addDay();
+        if (boxes.lastOrNull?.isComplete == true) {
+          checkAllComplete();
+          return;
+        }
+
         if (!dayMissed || boxes.lastOrNull?.isComplete == true) {
           return;
         }
@@ -317,6 +339,30 @@ class _HomeState extends State<Home> {
             prefs: prefs,
             tasks: tasks,
             setState: () {
+              setState(() {});
+            },
+            completeMissedDays: () {
+              int index = boxes.indexWhere((e) => e.completionDate == null);
+              int x = boxes[index - 1]
+                  .completionDate!
+                  .difference(DateTime.now())
+                  .inDays;
+
+              for (int i = index;
+                  i <
+                      boxes[index - 1]
+                          .completionDate!
+                          .difference(DateTime.now())
+                          .inDays;
+                  i++) {
+                boxes[i] = Box(
+                  tasks: tasks.length,
+                  completionDate: DateTime.now().subtract(Duration(days: x)),
+                  isComplete: true,
+                  lines: tasks.length,
+                );
+                x++;
+              }
               setState(() {});
             },
           ),
@@ -379,7 +425,7 @@ class _HomeState extends State<Home> {
                   allowCreation = !allowCreation;
                   setState(() {});
                 },
-                icon: const Icon(FontAwesomeIcons.chessRook),
+                icon: const Icon(FontAwesomeIcons.plus),
               ),
           ],
         ),
@@ -424,6 +470,7 @@ class _HomeState extends State<Home> {
                               context: context,
                               builder: (BuildContext context) {
                                 return TaskDetailsDialog(
+                                  isLastDayComplete: boxes.last.isComplete,
                                   allTasks: tasks,
                                   taskDetails: addTask,
                                 );
@@ -500,6 +547,8 @@ class _HomeState extends State<Home> {
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return TaskDetailsDialog(
+                                                  isLastDayComplete:
+                                                      boxes.last.isComplete,
                                                   task: tasks[index],
                                                   taskDetails: addTask,
                                                   verifyDayComplete:

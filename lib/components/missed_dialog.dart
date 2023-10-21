@@ -8,6 +8,7 @@ import '../models/task.dart';
 import '../repos/shared_prefs.dart';
 
 class MissedDialog extends StatelessWidget {
+  final void Function() completeMissedDays;
   final void Function() setState;
   final Preferences prefs;
   final List<Task> tasks;
@@ -19,6 +20,7 @@ class MissedDialog extends StatelessWidget {
     required this.boxes,
     required this.prefs,
     required this.setState,
+    required this.completeMissedDays,
   });
 
   @override
@@ -59,7 +61,7 @@ class MissedDialog extends StatelessWidget {
                         ),
                       ),
                       title: const Text(
-                        'Selecting YES means you keep your progress',
+                        'Selecting YES means you keep your progress and the "days missed" will be completed',
                         textAlign: TextAlign.center,
                       ),
                       contentPadding:
@@ -94,6 +96,9 @@ class MissedDialog extends StatelessWidget {
                   ),
                 ).then((value) {
                   if (value == true) {
+                    // Auto complete missed days
+                    completeMissedDays();
+                    // reset task completion
                     for (Task task in tasks) {
                       if (task.subList.isEmpty) {
                         task.isChecked = false;
@@ -141,7 +146,7 @@ class MissedDialog extends StatelessWidget {
                 if (e.isComplete) {
                   e.isComplete = false;
                   e.completionDate = null;
-                  prefs.removeAllDays(i);
+                  prefs.removeDay(i);
                   i++;
                 }
                 return;

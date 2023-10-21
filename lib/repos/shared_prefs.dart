@@ -22,7 +22,8 @@ class Preferences {
     ]);
   }
 
-  void removeAllDays(int index) async {
+  /// use in for loop to remove all the saved days.
+  void removeDay(int index) async {
     var prefs = await _preferences;
     prefs.remove(index.toString());
   }
