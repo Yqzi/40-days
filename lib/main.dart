@@ -131,16 +131,7 @@ class _HomeState extends State<Home> {
         }
 
         // reset all tasks checkboxes
-        for (Task task in tasks) {
-          if (task.subList.isEmpty) {
-            task.isChecked = false;
-          } else {
-            for (var key in task.subList.keys) {
-              task.subList[key] = false;
-            }
-            task.isChecked = false;
-          }
-        }
+        quickTaskReset();
 
         return showDialog(
           context: context,
@@ -279,19 +270,23 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void quickTaskReset() {
+    for (Task task in tasks) {
+      if (task.subList.isEmpty) {
+        task.isChecked = false;
+      } else {
+        for (var key in task.subList.keys) {
+          task.subList[key] = false;
+        }
+        task.isChecked = false;
+      }
+    }
+  }
+
   void resetTaskCompletion() {
     // reset task check boxes
     if (yesterday != DateTime.now().day) {
-      for (Task task in tasks) {
-        if (task.subList.isEmpty) {
-          task.isChecked = false;
-        } else {
-          for (var key in task.subList.keys) {
-            task.subList[key] = false;
-          }
-          task.isChecked = false;
-        }
-      }
+      quickTaskReset();
       yesterday = DateTime.now().day;
       prefs.saveYesterday(yesterday);
     }
@@ -342,26 +337,27 @@ class _HomeState extends State<Home> {
               setState(() {});
             },
             completeMissedDays: () {
-              int index = boxes.indexWhere((e) => e.completionDate == null);
-              int x = boxes[index - 1]
-                  .completionDate!
-                  .difference(DateTime.now())
-                  .inDays;
+              int index = boxes.indexWhere((e) => e.completionDate == null) - 1;
+              int remainingDays = index +
+                  DateTime.now()
+                      .difference(boxes[index].completionDate!)
+                      .inDays;
 
-              for (int i = index;
-                  i <
-                      boxes[index - 1]
-                          .completionDate!
-                          .difference(DateTime.now())
-                          .inDays;
-                  i++) {
+              for (int i = index; i < remainingDays; i++) {
                 boxes[i] = Box(
                   tasks: tasks.length,
-                  completionDate: DateTime.now().subtract(Duration(days: x)),
+                  completionDate: DateTime.now(),
                   isComplete: true,
                   lines: tasks.length,
                 );
-                x++;
+                prefs.saveDays(
+                  index: i.toString(),
+                  completionDate: boxes[i].completionDate!,
+                  isComplete: true,
+                  lines: tasks.length,
+                  tasks: tasks.length,
+                );
+                quickTaskReset();
               }
               setState(() {});
             },
