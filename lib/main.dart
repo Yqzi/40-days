@@ -110,6 +110,11 @@ class _HomeState extends State<Home> {
   Future<bool> checkDate() async {
     int index = boxes.indexWhere((e) => e.completionDate == null);
     if (index > 0) {
+      // if date changed manually to past protect progress.
+      if (boxes[index - 1].completionDate!.difference(DateTime.now()).inDays <
+          0) {
+        return false;
+      }
       if (boxes[index - 1].completionDate!.day !=
               DateTime.now().subtract(const Duration(days: 1)).day &&
           !boxes[index - 1].isToday) {
@@ -122,8 +127,9 @@ class _HomeState extends State<Home> {
   // Function should also be called every day
   Future<dynamic> checkAllComplete() async {
     if (boxes.last.isComplete) {
+      // Day after completion
       if (!boxes.last.isToday) {
-        // reset all days checkboxes. Day after completion
+        // reset all days checkboxes
         for (int i = 0; i < boxes.length; i++) {
           boxes[i].isComplete = false;
           boxes[i].completionDate = null;
@@ -225,6 +231,7 @@ class _HomeState extends State<Home> {
         lines: lines,
         tasks: tasks.length,
       );
+
       checkAllComplete();
       setState(() {});
       return;
@@ -346,7 +353,8 @@ class _HomeState extends State<Home> {
               for (int i = index; i < remainingDays; i++) {
                 boxes[i] = Box(
                   tasks: tasks.length,
-                  completionDate: DateTime.now(),
+                  completionDate:
+                      DateTime.now().subtract(const Duration(days: 1)),
                   isComplete: true,
                   lines: tasks.length,
                 );

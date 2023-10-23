@@ -99,7 +99,16 @@ class MissedDialog extends StatelessWidget {
                     // Auto complete missed days
                     completeMissedDays();
                     // reset task completion
-
+                    for (Task task in tasks) {
+                      if (task.subList.isEmpty) {
+                        task.isChecked = false;
+                      } else {
+                        for (var key in task.subList.keys) {
+                          task.subList[key] = false;
+                        }
+                        task.isChecked = false;
+                      }
+                    }
                     Navigator.pop(context);
                   }
                 });
