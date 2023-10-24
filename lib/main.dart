@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
@@ -29,7 +30,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with WidgetsBindingObserver {
   final CustomDatabase customDatabase = CustomDatabase();
   final Preferences prefs = Preferences();
   late bool firstTimeUser;
@@ -39,6 +40,135 @@ class _HomeState extends State<Home> {
   bool edit = false;
   bool dayMissed = false;
   bool allowCreation = false;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    print('AppLifeCycleState: $state');
+
+    // on resumed
+    if (state == AppLifecycleState.resumed) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) async {
+          await addDay();
+          if (boxes.lastOrNull?.isComplete == true) {
+            checkAllComplete();
+            return;
+          }
+
+          if (!dayMissed || boxes.lastOrNull?.isComplete == true) {
+            return;
+          }
+          // ignore: use_build_context_synchronously
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => MissedDialog(
+              boxes: boxes,
+              prefs: prefs,
+              tasks: tasks,
+              setState: () {
+                setState(() {});
+              },
+              completeMissedDays: () {
+                int index =
+                    boxes.indexWhere((e) => e.completionDate == null) - 1;
+                int remainingDays = index +
+                    DateTime.now()
+                        .difference(boxes[index].completionDate!)
+                        .inDays;
+
+                for (int i = index; i < remainingDays; i++) {
+                  boxes[i] = Box(
+                    tasks: tasks.length,
+                    completionDate:
+                        DateTime.now().subtract(const Duration(days: 1)),
+                    isComplete: true,
+                    lines: tasks.length,
+                  );
+                  prefs.saveDays(
+                    index: i.toString(),
+                    completionDate: boxes[i].completionDate!,
+                    isComplete: true,
+                    lines: tasks.length,
+                    tasks: tasks.length,
+                  );
+                  quickTaskReset();
+                }
+                setState(() {});
+              },
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setTasks();
+    verifyFirst();
+    // checkAllComplete();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        await addDay();
+        if (boxes.lastOrNull?.isComplete == true) {
+          checkAllComplete();
+          return;
+        }
+
+        if (!dayMissed || boxes.lastOrNull?.isComplete == true) {
+          return;
+        }
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => MissedDialog(
+            boxes: boxes,
+            prefs: prefs,
+            tasks: tasks,
+            setState: () {
+              setState(() {});
+            },
+            completeMissedDays: () {
+              int index = boxes.indexWhere((e) => e.completionDate == null) - 1;
+              int remainingDays = index +
+                  DateTime.now()
+                      .difference(boxes[index].completionDate!)
+                      .inDays;
+
+              for (int i = index; i < remainingDays; i++) {
+                boxes[i] = Box(
+                  tasks: tasks.length,
+                  completionDate:
+                      DateTime.now().subtract(const Duration(days: 1)),
+                  isComplete: true,
+                  lines: tasks.length,
+                );
+                prefs.saveDays(
+                  index: i.toString(),
+                  completionDate: boxes[i].completionDate!,
+                  isComplete: true,
+                  lines: tasks.length,
+                  tasks: tasks.length,
+                );
+                quickTaskReset();
+              }
+              setState(() {});
+            },
+          ),
+        );
+      },
+    );
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   void addTask(
       String name, Map<String, bool>? subList, bool ifSelectOne, int? index) {
@@ -314,66 +444,6 @@ class _HomeState extends State<Home> {
     yesterday = await prefs.loadYesterday() ?? DateTime.now().day;
     prefs.saveYesterday(yesterday);
     resetTaskCompletion();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    setTasks();
-    verifyFirst();
-    // checkAllComplete();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async {
-        await addDay();
-        if (boxes.lastOrNull?.isComplete == true) {
-          checkAllComplete();
-          return;
-        }
-
-        if (!dayMissed || boxes.lastOrNull?.isComplete == true) {
-          return;
-        }
-        // ignore: use_build_context_synchronously
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => MissedDialog(
-            boxes: boxes,
-            prefs: prefs,
-            tasks: tasks,
-            setState: () {
-              setState(() {});
-            },
-            completeMissedDays: () {
-              int index = boxes.indexWhere((e) => e.completionDate == null) - 1;
-              int remainingDays = index +
-                  DateTime.now()
-                      .difference(boxes[index].completionDate!)
-                      .inDays;
-
-              for (int i = index; i < remainingDays; i++) {
-                boxes[i] = Box(
-                  tasks: tasks.length,
-                  completionDate:
-                      DateTime.now().subtract(const Duration(days: 1)),
-                  isComplete: true,
-                  lines: tasks.length,
-                );
-                prefs.saveDays(
-                  index: i.toString(),
-                  completionDate: boxes[i].completionDate!,
-                  isComplete: true,
-                  lines: tasks.length,
-                  tasks: tasks.length,
-                );
-                quickTaskReset();
-              }
-              setState(() {});
-            },
-          ),
-        );
-      },
-    );
-    setState(() {});
   }
 
   @override
