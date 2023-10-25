@@ -1,6 +1,7 @@
-import 'package:flutter/services.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
+import 'package:forty_days/repos/notications.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
 import 'package:forty_days/repos/data_base.dart';
 import 'package:forty_days/models/task.dart';
@@ -13,6 +14,8 @@ import 'components/task_details_dialog.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+  NotifService().initNotif();
 
   runApp(
     MaterialApp(
@@ -109,6 +112,11 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     setTasks();
     verifyFirst();
+    // schedule repeat notif at 7
+    NotifService().dailyNotif(
+      title: 'Title',
+      body: 'Body',
+    );
     // checkAllComplete();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
