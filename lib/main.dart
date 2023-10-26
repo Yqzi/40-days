@@ -1,8 +1,9 @@
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:forty_days/components/custom_checkBox.dart';
-import 'package:forty_days/repos/notications.dart';
 import 'package:forty_days/repos/shared_prefs.dart';
+import 'package:forty_days/repos/notications.dart';
 import 'package:forty_days/repos/data_base.dart';
 import 'package:forty_days/models/task.dart';
 import 'package:forty_days/models/box.dart';
@@ -12,10 +13,15 @@ import 'components/box_widget.dart';
 import 'components/missed_dialog.dart';
 import 'components/task_details_dialog.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Permission.notification.isDenied.then((value) {
+    if (value) {
+      Permission.notification.request();
+    }
+  });
   tz.initializeTimeZones();
-  NotifService().initNotif();
+  await Notif().initializeNotification();
 
   runApp(
     MaterialApp(
@@ -113,9 +119,11 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     setTasks();
     verifyFirst();
     // schedule repeat notif at 7
-    NotifService().dailyNotif(
-      title: 'Title',
-      body: 'Body',
+    Notif().scheduleNotification(
+      'Title',
+      'Body',
+      DateTime.now().add(const Duration(minutes: 1)),
+      id: 0,
     );
     // checkAllComplete();
     WidgetsBinding.instance.addPostFrameCallback(
