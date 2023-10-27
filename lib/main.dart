@@ -21,7 +21,8 @@ void main() async {
     }
   });
   tz.initializeTimeZones();
-  await Notif().initializeNotification();
+  // await Notif().initializeNotification();
+  await NotifService().initNotif();
 
   runApp(
     MaterialApp(
@@ -49,9 +50,10 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   bool edit = false;
   bool dayMissed = false;
   bool allowCreation = false;
+  DateTime now = DateTime.now();
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     print('AppLifeCycleState: $state');
 
@@ -110,6 +112,29 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
         },
       );
     }
+
+    if (state == AppLifecycleState.paused) {
+      if (boxes.isEmpty) {
+        return;
+      }
+      late Box b;
+      try {
+        b = boxes.lastWhere((element) => element.isComplete == true);
+      } catch (e) {
+        b = boxes[0];
+      }
+      if (b.isToday) {
+        await NotifService().cancelNotification(0);
+        await NotifService().dailyNotif(
+          title: 'Reminder',
+          body:
+              'D\'ont forget to complete your daylies if you haven\'t already!!!',
+          time: DateTime(now.year, now.month, now.day, 19).add(
+            const Duration(days: 1),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -119,11 +144,16 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     setTasks();
     verifyFirst();
     // schedule repeat notif at 7
-    Notif().scheduleNotification(
-      'Title',
-      'Body',
-      DateTime.now().add(const Duration(minutes: 1)),
-      id: 0,
+    // Notif().scheduleNotification(
+    //   'Title',
+    //   'Body',
+    //   DateTime.now().add(const Duration(minutes: 1)),
+    //   id: 0,
+    // );
+    NotifService().dailyNotif(
+      title: 'Reminder',
+      body: 'D\'ont forget to complete your daylies if you haven\'t already!!!',
+      time: DateTime(now.year, now.month, now.day, 19),
     );
     // checkAllComplete();
     WidgetsBinding.instance.addPostFrameCallback(
