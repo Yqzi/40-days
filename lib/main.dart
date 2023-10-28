@@ -129,9 +129,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
           title: 'Reminder',
           body:
               'D\'ont forget to complete your daylies if you haven\'t already!!!',
-          time: DateTime(now.year, now.month, now.day, 19).add(
-            const Duration(days: 1),
-          ),
+          time: DateTime(now.year, now.month, now.day, 19)
+              .add(const Duration(days: 1)),
         );
       }
     }
