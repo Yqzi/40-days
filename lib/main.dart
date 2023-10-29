@@ -143,13 +143,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     setTasks();
     verifyFirst();
-    // schedule repeat notif at 7
-    // Notif().scheduleNotification(
-    //   'Title',
-    //   'Body',
-    //   DateTime.now().add(const Duration(minutes: 1)),
-    //   id: 0,
-    // );
+    // schedule notif
     NotifService().dailyNotif(
       title: 'Reminder',
       body: 'D\'ont forget to complete your daylies if you haven\'t already!!!',
@@ -159,6 +153,23 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         await addDay();
+        // schedule next notif
+        late Box b;
+        try {
+          b = boxes.lastWhere((element) => element.isComplete == true);
+        } catch (e) {
+          b = boxes[0];
+        }
+        if (b.isToday) {
+          await NotifService().cancelNotification(0);
+          await NotifService().dailyNotif(
+            title: 'Reminder',
+            body:
+                'D\'ont forget to complete your daylies if you haven\'t already!!!',
+            time: DateTime(now.year, now.month, now.day, 19)
+                .add(const Duration(days: 1)),
+          );
+        }
         if (boxes.lastOrNull?.isComplete == true) {
           checkAllComplete();
           return;
@@ -380,11 +391,12 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     }
   }
 
-  void verifyDayComplete() {
+  Future<void> verifyDayComplete() async {
     int index = boxes.indexWhere((e) => e.completionDate == null);
     int lines = tasks.where((e) => e.isChecked == true).length;
     int y = 0;
 
+    print(index);
     if (lines == tasks.length && lines > 0) {
       int x = index > 0
           ? !boxes[index - 1].isToday
@@ -407,6 +419,17 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
         lines: lines,
         tasks: tasks.length,
       );
+      if (boxes[x].isComplete) {
+        await NotifService().cancelNotification(0);
+        await NotifService().dailyNotif(
+          title: 'Reminder',
+          body:
+              'D\'ont forget to complete your daylies if you haven\'t already!!!',
+          time: DateTime(now.year, now.month, now.day, 19).add(
+            const Duration(days: 1),
+          ),
+        );
+      }
 
       checkAllComplete();
       setState(() {});
@@ -445,6 +468,14 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       } else {
         boxes[index] = Box(tasks: tasks.length);
         y = index;
+      }
+      if (DateTime.now().hour < 19) {
+        await NotifService().dailyNotif(
+          title: 'Reminder',
+          body:
+              'D\'ont forget to complete your daylies if you haven\'t already!!!',
+          time: DateTime(now.year, now.month, now.day, 19),
+        );
       }
       prefs.removeDays(y.toString());
       checkAllComplete();
