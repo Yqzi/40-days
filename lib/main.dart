@@ -1,3 +1,4 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -27,7 +28,21 @@ void main() async {
   runApp(
     MaterialApp(
       home: const Home(),
-      darkTheme: ThemeData(brightness: Brightness.dark),
+      darkTheme: FlexThemeData.dark(
+        scheme: FlexScheme.blue,
+        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+        blendLevel: 13,
+        subThemesData: const FlexSubThemesData(
+          blendOnLevel: 20,
+          useTextTheme: true,
+          useM2StyleDividerInM3: true,
+          alignedDropdown: true,
+          useInputDecoratorThemeInDialogs: true,
+        ),
+        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+        useMaterial3: true,
+        swapLegacyOnMaterial3: true,
+      ),
       themeMode: ThemeMode.dark,
     ),
   );
@@ -606,7 +621,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             child: Column(
               children: [
                 Title(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onBackground,
                   child: const Text('Tasks'),
                 ),
                 if (boxes.firstOrNull?.isComplete == false ||
@@ -636,8 +651,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                         },
                         icon: Icon(
                           FontAwesomeIcons.penToSquare,
-                          color:
-                              (edit) ? const Color(0xFFFFE082) : Colors.white,
+                          color: (edit)
+                              ? const Color(0xFFFFE082)
+                              : Theme.of(context).colorScheme.secondary,
                         ),
                       )
                     ],
@@ -681,9 +697,11 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                           },
                                         );
                                       },
-                                      icon: const Icon(
+                                      icon: Icon(
                                         FontAwesomeIcons.circleMinus,
-                                        color: Colors.red,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .errorContainer,
                                         size: 20,
                                       ),
                                     ),
