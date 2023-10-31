@@ -14,6 +14,22 @@ import 'components/box_widget.dart';
 import 'components/missed_dialog.dart';
 import 'components/task_details_dialog.dart';
 
+final theme = FlexThemeData.dark(
+  scheme: FlexScheme.cyanM3,
+  surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+  blendLevel: 13,
+  subThemesData: const FlexSubThemesData(
+    blendOnLevel: 20,
+    useTextTheme: true,
+    useM2StyleDividerInM3: true,
+    alignedDropdown: true,
+    useInputDecoratorThemeInDialogs: true,
+  ),
+  visualDensity: FlexColorScheme.comfortablePlatformDensity,
+  useMaterial3: true,
+  swapLegacyOnMaterial3: true,
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Permission.notification.isDenied.then((value) {
@@ -22,27 +38,12 @@ void main() async {
     }
   });
   tz.initializeTimeZones();
-  // await Notif().initializeNotification();
   await NotifService().initNotif();
 
   runApp(
     MaterialApp(
       home: const Home(),
-      darkTheme: FlexThemeData.dark(
-        scheme: FlexScheme.blue,
-        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 13,
-        subThemesData: const FlexSubThemesData(
-          blendOnLevel: 20,
-          useTextTheme: true,
-          useM2StyleDividerInM3: true,
-          alignedDropdown: true,
-          useInputDecoratorThemeInDialogs: true,
-        ),
-        visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        useMaterial3: true,
-        swapLegacyOnMaterial3: true,
-      ),
+      darkTheme: theme,
       themeMode: ThemeMode.dark,
     ),
   );
@@ -652,7 +653,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                         icon: Icon(
                           FontAwesomeIcons.penToSquare,
                           color: (edit)
-                              ? const Color(0xFFFFE082)
+                              ? Theme.of(context).colorScheme.errorContainer
                               : Theme.of(context).colorScheme.secondary,
                         ),
                       )

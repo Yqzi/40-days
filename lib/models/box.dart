@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forty_days/main.dart';
 
 class Box {
   final Color color;
@@ -10,10 +11,9 @@ class Box {
   Box({
     this.completionDate,
     this.isComplete = false,
-    this.color = Colors.orange,
     this.lines = 0,
     required this.tasks,
-  });
+  }) : color = theme.colorScheme.surfaceTint;
 
   bool get isToday => completionDate?.day == DateTime.now().day;
 

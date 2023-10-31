@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../models/box.dart';
@@ -17,12 +18,16 @@ class BoxWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: box.completionDate == null
-          ? null
+          ? const Icon(FontAwesomeIcons.faceSmile)
+              .animate()
+              .fadeOut(duration: Duration(seconds: 1))
           : box.isComplete
               ? const Icon(FontAwesomeIcons.faceSmile)
+                  .animate()
+                  .fade(duration: Duration(seconds: 1))
               : CustomPaint(
                   foregroundPainter: LinePainter(lines: box.lines),
-                ),
+                ).animate().fadeIn(duration: Duration(seconds: 1)),
     );
   }
 }
