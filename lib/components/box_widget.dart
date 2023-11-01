@@ -20,14 +20,22 @@ class BoxWidget extends StatelessWidget {
       child: box.completionDate == null
           ? const Icon(FontAwesomeIcons.faceSmile)
               .animate()
-              .fadeOut(duration: Duration(seconds: 1))
+              .shake(duration: const Duration(milliseconds: 600))
+              .then()
+              .swap(
+                  duration: const Duration(milliseconds: 200),
+                  builder: (BuildContext context, _) {
+                    return const Icon(FontAwesomeIcons.smog);
+                  })
+              .then()
+              .fadeOut(duration: const Duration(seconds: 1))
           : box.isComplete
               ? const Icon(FontAwesomeIcons.faceSmile)
                   .animate()
-                  .fade(duration: Duration(seconds: 1))
+                  .fade(duration: const Duration(seconds: 2))
               : CustomPaint(
                   foregroundPainter: LinePainter(lines: box.lines),
-                ).animate().fadeIn(duration: Duration(seconds: 1)),
+                ),
     );
   }
 }

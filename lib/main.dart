@@ -1,4 +1,5 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -747,7 +748,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                       ),
                                     ),
                                   ],
-                                )
+                                ).animate().slideX(
+                                  begin: -0.1,
+                                  delay: Duration(milliseconds: 100))
                               : Card(
                                   child: CustomCheckBox(
                                     taskDetails: addTask,
@@ -756,7 +759,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                     allTasks: tasks,
                                     verifyDayComplete: verifyDayComplete,
                                   ),
-                                ),
+                                ).animate().slideX(
+                                  begin: 0.1,
+                                  delay: Duration(milliseconds: 200)),
                         )
                     ],
                   ),
