@@ -275,37 +275,37 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   Future<void> addDay([int? completed]) async {
     if (boxes.isEmpty) {
       for (int i = 0; i < 40; i++) {
-        // if (i == 39) {
-        //   boxes.add(Box(tasks: tasks.length));
-        //   prefs.removeDay(i);
-        //   return;
-        // }
-        // boxes.add(
-        //   Box(
-        //     tasks: tasks.length,
-        //     completionDate: DateTime.now().subtract(const Duration(days: 1)),
-        //     isComplete: true,
-        //     lines: tasks.length,
-        //   ),
-        // );
-        // prefs.saveDays(
-        //   index: i.toString(),
-        //   completionDate: boxes[i].completionDate!,
-        //   isComplete: true,
-        //   lines: 0,
-        //   tasks: tasks.length,
-        // );
-        Map? x = await prefs.loadDays(i.toString());
+        if (i == 39) {
+          boxes.add(Box(tasks: tasks.length));
+          prefs.removeDay(i);
+          return;
+        }
         boxes.add(
-          x == null
-              ? Box(tasks: tasks.length)
-              : Box(
-                  completionDate: x['completionDate'],
-                  isComplete: x['isComplete'],
-                  lines: x['lines'],
-                  tasks: x['tasks'],
-                ),
+          Box(
+            tasks: tasks.length,
+            completionDate: DateTime.now().subtract(const Duration(days: 1)),
+            isComplete: true,
+            lines: tasks.length,
+          ),
         );
+        prefs.saveDays(
+          index: i.toString(),
+          completionDate: boxes[i].completionDate!,
+          isComplete: true,
+          lines: 0,
+          tasks: tasks.length,
+        );
+        // Map? x = await prefs.loadDays(i.toString());
+        // boxes.add(
+        //   x == null
+        //       ? Box(tasks: tasks.length)
+        //       : Box(
+        //           completionDate: x['completionDate'],
+        //           isComplete: x['isComplete'],
+        //           lines: x['lines'],
+        //           tasks: x['tasks'],
+        //         ),
+        // );
       }
     }
     dayMissed = await checkDate();
@@ -333,13 +333,6 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     if (boxes.last.isComplete) {
       // Day after completion
       if (!boxes.last.isToday) {
-        // reset all days checkboxes
-        for (int i = 0; i < boxes.length; i++) {
-          boxes[i].isComplete = false;
-          boxes[i].completionDate = null;
-          prefs.removeDay(i);
-        }
-
         // reset all tasks checkboxes
         quickTaskReset();
 
@@ -366,6 +359,14 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                 child: TextButton(
                   onPressed: () {
                     Navigator.pop(context);
+                    // reset all days checkboxes
+                    for (int i = 0; i < boxes.length; i++) {
+                      boxes[i].isComplete = false;
+                      boxes[i].completionDate = null;
+                      prefs.removeDay(i);
+
+                      setState(() {});
+                    }
                   },
                   child: const Text('Dismiss'),
                 ),
