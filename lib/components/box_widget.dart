@@ -5,9 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/box.dart';
 
 class BoxWidget extends StatelessWidget {
-  const BoxWidget({super.key, required this.box});
+  const BoxWidget({super.key, required this.box, required this.index});
 
   final Box box;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +24,7 @@ class BoxWidget extends StatelessWidget {
               .shake(duration: const Duration(milliseconds: 600))
               .then()
               .swap(
+                  delay: Duration(milliseconds: 50 * (39 - index)),
                   duration: const Duration(milliseconds: 200),
                   builder: (BuildContext context, _) {
                     return const Icon(FontAwesomeIcons.smog);

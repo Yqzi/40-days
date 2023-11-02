@@ -373,9 +373,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             boxes[i].isComplete = false;
             boxes[i].completionDate = null;
             prefs.removeDay(i);
-            setState(() {});
-            await Future.delayed(const Duration(milliseconds: 100));
           }
+          setState(() {});
         });
       }
       // Checking if AlertDialog already shown
@@ -622,7 +621,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                   childAspectRatio: 1,
                 ),
                 children: [
-                  for (var box in boxes) BoxWidget(box: box),
+                  for (int i = 0; i < boxes.length; i++)
+                    BoxWidget(box: boxes[i], index: i),
                 ],
               ),
             ),
