@@ -364,9 +364,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                       boxes[i].isComplete = false;
                       boxes[i].completionDate = null;
                       prefs.removeDay(i);
-
-                      setState(() {});
                     }
+                    setState(() {});
                   },
                   child: const Text('Dismiss'),
                 ),
