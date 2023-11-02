@@ -67,6 +67,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   bool edit = false;
   bool dayMissed = false;
   bool allowCreation = false;
+  bool hasAlertComplete = false;
   DateTime now = DateTime.now();
 
   @override
@@ -89,6 +90,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
           }
           // ignore: use_build_context_synchronously
           showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (BuildContext context) => MissedDialog(
               boxes: boxes,
@@ -357,22 +359,28 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             actions: [
               Center(
                 child: TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    // reset all days checkboxes
-                    for (int i = 0; i < boxes.length; i++) {
-                      boxes[i].isComplete = false;
-                      boxes[i].completionDate = null;
-                      prefs.removeDay(i);
-                    }
-                    setState(() {});
                   },
                   child: const Text('Dismiss'),
                 ),
               )
             ],
           ),
-        );
+        ).then((_) async {
+          // reset all days checkboxes
+          for (int i = 39; i >= 0; i--) {
+            boxes[i].isComplete = false;
+            boxes[i].completionDate = null;
+            prefs.removeDay(i);
+            setState(() {});
+            await Future.delayed(const Duration(milliseconds: 100));
+          }
+        });
+      }
+      // Checking if AlertDialog already shown
+      if (hasAlertComplete) {
+        return;
       }
       // day of completion
       return showDialog(
@@ -404,7 +412,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             )
           ],
         ),
-      );
+      ).then((_) => hasAlertComplete = true);
     }
   }
 
@@ -708,40 +716,35 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                       ),
                                     ),
                                     Expanded(
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 8),
-                                        child: MaterialButton(
-                                          padding: EdgeInsets.zero,
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return TaskDetailsDialog(
-                                                  isLastDayComplete:
-                                                      boxes.last.isComplete,
-                                                  task: tasks[index],
-                                                  taskDetails: addTask,
-                                                  verifyDayComplete:
-                                                      verifyDayComplete,
-                                                  allTasks: tasks,
-                                                  index: index,
-                                                );
-                                              },
-                                            );
-                                          },
-                                          child: Card(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(15.0),
-                                              child: CustomCheckBox(
-                                                taskDetails: addTask,
-                                                edit: edit,
+                                      child: MaterialButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return TaskDetailsDialog(
+                                                isLastDayComplete:
+                                                    boxes.last.isComplete,
                                                 task: tasks[index],
-                                                allTasks: tasks,
+                                                taskDetails: addTask,
                                                 verifyDayComplete:
                                                     verifyDayComplete,
-                                              ),
+                                                allTasks: tasks,
+                                                index: index,
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: Card(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(15.0),
+                                            child: CustomCheckBox(
+                                              taskDetails: addTask,
+                                              edit: edit,
+                                              task: tasks[index],
+                                              allTasks: tasks,
+                                              verifyDayComplete:
+                                                  verifyDayComplete,
                                             ),
                                           ),
                                         ),
@@ -749,8 +752,10 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                     ),
                                   ],
                                 ).animate().slideX(
-                                  begin: -0.1,
-                                  delay: Duration(milliseconds: 100))
+                                    begin: -0.1,
+                                    end: -0.05,
+                                    delay: const Duration(milliseconds: 100),
+                                  )
                               : Card(
                                   child: CustomCheckBox(
                                     taskDetails: addTask,
@@ -760,8 +765,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                     verifyDayComplete: verifyDayComplete,
                                   ),
                                 ).animate().slideX(
-                                  begin: 0.1,
-                                  delay: Duration(milliseconds: 200)),
+                                    begin: 0.05,
+                                    delay: const Duration(milliseconds: 200),
+                                  ),
                         )
                     ],
                   ),
