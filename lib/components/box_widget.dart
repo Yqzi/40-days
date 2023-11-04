@@ -60,6 +60,6 @@ class LinePainter extends CustomPainter {
     }
   }
 
-  @override
+  @overrid
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
