@@ -53,10 +53,9 @@ class LinePainter extends CustomPainter {
 
     for (int i = 0; i < lines; i++) {
       canvas.drawLine(
-        Offset(size.width / (lines + 1) * (i + 1), size.height / 6),
-        Offset(size.width / (lines + 1) * (i + 1), size.height * 5 / 6),
-        paint,
-      );
+          Offset(size.width / (lines + 1) * (i + 1), size.height / 6),
+          Offset(size.width / (lines + 1) * (i + 1), size.height * 5 / 6),
+          paint);
     }
   }
 
